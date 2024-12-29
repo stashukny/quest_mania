@@ -108,7 +108,7 @@ app.put('/api/quests/:id', async (req, res) => {
     
     try {
         const { rows } = await pool.query(
-            'UPDATE quests SET title = $1, description = $2, reward = $3, status = $4, duration = $5, assignedto = $6 WHERE id = $8 RETURNING *',
+            'UPDATE quests SET title = $1, description = $2, reward = $3, status = $4, duration = $5, assignedto = $6 WHERE id = $7 RETURNING *',
             [title, description, reward, status, duration, assignedToJson, isTeamQuest, questId]
         );
         res.json({
@@ -249,7 +249,7 @@ app.post('/api/prizes', async (req, res) => {
     const { id, name, description, cost, imageUrl } = req.body;
     try {
         const { rows } = await pool.query(
-            'INSERT INTO prizes (id, name, description, stars_cost, image_url, available) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            'INSERT INTO prizes (id, name, description, starscost, imageurl, available) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [id, name, description, cost, imageUrl, true]
         );
         res.json(rows[0]);
@@ -263,7 +263,7 @@ app.put('/api/prizes/:id', async (req, res) => {
     const { name, description, cost, imageUrl, available } = req.body;
     try {
         const { rows } = await pool.query(
-            'UPDATE prizes SET name = $1, description = $2, stars_cost = $3, image_url = $4, available = $5 WHERE id = $6 RETURNING *',
+            'UPDATE prizes SET name = $1, description = $2, starscost = $3, imageurl = $4, available = $5 WHERE id = $6 RETURNING *',
             [name, description, cost, imageUrl, available, prizeId]
         );
         res.json(rows[0]);
