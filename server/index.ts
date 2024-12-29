@@ -4,18 +4,13 @@ import bodyParser from 'body-parser';
 import { db } from './db/database.js';
 import crypto from 'crypto';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../dist')));
+app.use(express.static(path.join(process.cwd(), 'dist')));
 
 
 interface DbQuest {
@@ -671,7 +666,7 @@ app.post('/api/prizes/redeem', (req, res) => {
 
 // Serve React app for any other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+  res.sendFile(path.join(process.cwd(), 'dist/index.html'));
 });
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
