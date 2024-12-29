@@ -3,8 +3,8 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
 import path from 'path';
-import pkg from 'pg';
-const { Pool } = pkg;
+import { Pool } from 'pg';
+import { Quest } from './types';
 
 const app = express();
 app.use(cors());
@@ -74,9 +74,9 @@ app.put('/api/seekers/:id', async (req, res) => {
 app.get('/api/quests', async (req, res) => {
     try {
         const { rows } = await pool.query('SELECT * FROM quests');
-        const parsedQuests = rows.map(quest => ({
+        const parsedQuests = rows.map((quest: Quest) => ({
             ...quest,
-            assignedTo: quest.assigned_to ? JSON.parse(quest.assigned_to) : []
+            assignedTo: quest.assignedTo ? JSON.parse(quest.assignedTo) : []
         }));
         res.json(parsedQuests);
     } catch (err) {

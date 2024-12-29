@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS prize_redemptions (
 );
 `;
 
-pool.query(schema).catch(err => {
+pool.query(schema).catch((err: Error) => {
     console.error('Error initializing database:', err);
 });
 
