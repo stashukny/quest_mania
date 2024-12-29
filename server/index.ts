@@ -246,11 +246,11 @@ app.get('/api/prizes', async (req, res) => {
 });
 
 app.post('/api/prizes', async (req, res) => {
-    const { id, name, description, cost, imageUrl } = req.body;
+    const { id, name, description, starsCost, imageUrl } = req.body;
     try {
         const { rows } = await pool.query(
             'INSERT INTO prizes (id, name, description, starscost, imageurl, available) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [id, name, description, cost, imageUrl, true]
+            [id, name, description, starsCost, imageUrl, true]
         );
         res.json(rows[0]);
     } catch (err) {
