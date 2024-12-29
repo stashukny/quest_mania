@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import QuestMasterDashboard from './components/master/QuestMasterDashboard';
 import SeekerLogin from './components/seeker/SeekerLogin';
 import SeekerDashboard from './components/seeker/SeekerDashboard';
