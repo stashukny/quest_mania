@@ -5,6 +5,7 @@ import QuestList from './QuestList';
 import PrizeStore from './PrizeStore';
 import RedemptionCertificate from './RedemptionCertificate';
 import QuestSuggestionForm from './QuestSuggestion';
+import { API_URL } from '../../config';
 
 interface SeekerDashboardProps {
   seeker: QuestSeeker;
@@ -30,7 +31,7 @@ export default function SeekerDashboard({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/prizes')
+    fetch(`${API_URL}/api/prizes`)
         .then(res => res.json())
         .then(data => setPrizes(data))
         .catch(err => console.error('Error fetching prizes:', err));
@@ -39,7 +40,7 @@ export default function SeekerDashboard({
   useEffect(() => {
     const fetchQuests = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/api/seekers/${seeker.id}/quests`);
+            const response = await fetch(`${API_URL}/api/seekers/${seeker.id}/quests`);
             if (!response.ok) throw new Error('Failed to fetch quests');
             const data = await response.json();
             setQuests(data);
@@ -74,7 +75,7 @@ export default function SeekerDashboard({
 
   const handleQuestStart = async (questId: string) => {
     try {
-        const response = await fetch(`http://localhost:3001/api/quests/${questId}/start`, {
+        const response = await fetch(`${API_URL}/api/quests/${questId}/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ export default function SeekerDashboard({
 
   const handleQuestComplete = async (questId: string) => {
     try {
-        const response = await fetch(`http://localhost:3001/api/quests/${questId}/complete`, {
+        const response = await fetch(`${API_URL}/api/quests/${questId}/complete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -122,7 +123,7 @@ export default function SeekerDashboard({
 
   const fetchQuestDetails = async (questId: string) => {
     try {
-        const response = await fetch(`http://localhost:3001/api/quests/${questId}`);
+        const response = await fetch(`${API_URL}/api/quests/${questId}`);
         if (!response.ok) throw new Error('Failed to fetch quest details');
         
         const questDetails = await response.json();

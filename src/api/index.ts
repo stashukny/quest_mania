@@ -1,18 +1,16 @@
+import { API_URL } from '../config';
 import { Quest } from "../types";
-
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api'  // In production, use relative path
-  : 'http://localhost:3001/api';  // In development, use full URL
 
 export const api = {
     // Seekers
     getSeekers: async () => {
-        const response = await fetch(`${API_BASE_URL}/seekers`);
+        const response = await fetch(`${API_URL}/api/seekers`);
+        if (!response.ok) throw new Error('Failed to fetch seekers');
         return response.json();
     },
     
     createSeeker: async (seeker: { id: string; name: string }) => {
-        const response = await fetch(`${API_BASE_URL}/seekers`, {
+        const response = await fetch(`${API_URL}/api/seekers`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -24,12 +22,13 @@ export const api = {
 
     // Quests
     getQuests: async () => {
-        const response = await fetch(`${API_BASE_URL}/quests`);
+        const response = await fetch(`${API_URL}/api/quests`);
+        if (!response.ok) throw new Error('Failed to fetch quests');
         return response.json();
     },
 
     createQuest: async (quest: Quest) => {
-        const response = await fetch(`${API_BASE_URL}/quests`, {
+        const response = await fetch(`${API_URL}/api/quests`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -40,7 +39,7 @@ export const api = {
     },
 
     updateQuestStatus: async (questId: string, status: string, startedAt?: string) => {
-        const response = await fetch(`${API_BASE_URL}/quests/${questId}`, {
+        const response = await fetch(`${API_URL}/api/quests/${questId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
