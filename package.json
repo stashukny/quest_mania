@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cp server/db/schema.sql dist/server/db/",
     "serve": "vite preview",
     "start": "node dist/server/index.js",
     "heroku-postbuild": "npm install && npm run build && tsc -p server/tsconfig.json"

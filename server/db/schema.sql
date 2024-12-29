@@ -1,4 +1,4 @@
-CREATE TABLE seekers (
+CREATE TABLE IF NOT EXISTS seekers (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     pin TEXT NOT NULL,
@@ -6,53 +6,43 @@ CREATE TABLE seekers (
     stars INTEGER DEFAULT 0
 );
 
-CREATE TABLE quests (
+CREATE TABLE IF NOT EXISTS quests (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,
-    reward INTEGER,
-    status TEXT,
-    duration INTEGER,
+    reward INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    duration TEXT NOT NULL,
+    assignedTo TEXT,
     startedAt TEXT,
-    assignedTo TEXT
+    completedAt TEXT
 );
 
-CREATE TABLE quest_suggestions (
+CREATE TABLE IF NOT EXISTS quest_suggestions (
     id TEXT PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT,
-    desiredReward INTEGER,
-    suggestedBy TEXT,
-    status TEXT,
-    duration INTEGER,
-    FOREIGN KEY(suggestedBy) REFERENCES seekers(id)
+    suggestedBy TEXT NOT NULL,
+    status TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    desiredReward INTEGER NOT NULL,
+    duration TEXT NOT NULL
 );
 
-CREATE TABLE prize_redemptions (
-    id TEXT PRIMARY KEY,
-    prizeId TEXT NOT NULL,
-    seekerId TEXT NOT NULL,
-    redeemedAt TEXT,
-    certificateId TEXT,
-    starsCost INTEGER,
-    FOREIGN KEY(seekerId) REFERENCES seekers(id)
-);
-
-CREATE TABLE prizes (
+CREATE TABLE IF NOT EXISTS prizes (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
-    starsCost INTEGER,
-    available BOOLEAN,
-    imageUrl TEXT
+    starsCost INTEGER NOT NULL,
+    imageUrl TEXT,
+    available BOOLEAN DEFAULT 1
 );
 
-CREATE TABLE quest_completions (
+CREATE TABLE IF NOT EXISTS prize_redemptions (
     id TEXT PRIMARY KEY,
-    questId TEXT NOT NULL,
+    prizeId TEXT NOT NULL,
     seekerId TEXT NOT NULL,
-    status TEXT NOT NULL, -- 'pending', 'completed', 'rejected'
-    completedAt TEXT,
-    FOREIGN KEY(questId) REFERENCES quests(id),
-    FOREIGN KEY(seekerId) REFERENCES seekers(id)
+    redeemedAt TEXT NOT NULL,
+    certificateId TEXT NOT NULL,
+    starsCost INTEGER NOT NULL
 );
