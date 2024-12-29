@@ -24,7 +24,7 @@ export default function App() {
         const [seekersData, questsData, suggestionsData] = await Promise.all([
             api.getSeekers(),
             api.getQuests(),
-            fetch('http://localhost:3001/api/quest-suggestions').then(res => res.json())
+            fetch('${API_URL}/api/quest-suggestions').then(res => res.json())
         ]);
         setSeekers(seekersData);
         setQuests(questsData);

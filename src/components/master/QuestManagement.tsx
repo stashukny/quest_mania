@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Sparkles, Pencil, Trash2, X, Check } from 'lucide-react';
 import { Quest, QuestSeeker, QuestDuration } from '../../types';
+import { API_URL } from '../../config';
 
 interface QuestManagementProps {
   seekers: QuestSeeker[];
@@ -122,7 +123,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
   // Fetch quests on component mount
   useEffect(() => {
-    fetch('http://localhost:3001/api/quests')
+    fetch('${API_URL}/api/quests')
       .then(res => res.json())
       .then(data => setQuests(data))
       .catch(err => console.error('Error fetching quests:', err));
@@ -147,7 +148,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/quests', {
+      const response = await fetch('${API_URL}/api/quests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -175,7 +176,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
   const handleEditQuest = async (updatedQuest: Quest) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quests/${updatedQuest.id}`, {
+      const response = await fetch(`${API_URL}/api/quests/${updatedQuest.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -205,7 +206,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
     if (confirm('Are you sure you want to delete this quest?')) {
       try {
-        const response = await fetch(`http://localhost:3001/api/quests/${questId}`, {
+        const response = await fetch(`${API_URL}/api/quests/${questId}`, {
           method: 'DELETE',
         });
 

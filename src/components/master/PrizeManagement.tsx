@@ -19,7 +19,7 @@ function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
   const [editedPrize, setEditedPrize] = useState({
     name: prize.name,
     description: prize.description,
-    cost: prize.cost,
+    starsCost: prize.starsCost,
     imageUrl: prize.imageUrl || '',
   });
 
@@ -45,8 +45,8 @@ function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
         <div className="space-y-2">
           <input
             type="number"
-            value={editedPrize.cost}
-            onChange={(e) => setEditedPrize({ ...editedPrize, cost: parseInt(e.target.value) || 0 })}
+            value={editedPrize.starsCost}
+            onChange={(e) => setEditedPrize({ ...editedPrize, starsCost: parseInt(e.target.value) || 0 })}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="Star Cost"
             min="1"
@@ -64,7 +64,7 @@ function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
         <button
           onClick={() => onSave({ ...prize, ...editedPrize })}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-          disabled={!editedPrize.name || editedPrize.cost < 1}
+          disabled={!editedPrize.name || editedPrize.starsCost < 1}
         >
           <Check className="w-4 h-4" />
           Save
@@ -191,7 +191,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
         <div className="space-y-4">
           {showAddForm && (
             <EditablePrize
-              prize={{ id: '', name: '', description: '', cost: 1, imageUrl: '' }}
+              prize={{ id: '', name: '', description: '', starsCost: 1, imageUrl: '' }}
               onSave={(prize) => handleAddPrize(prize)}
               onCancel={() => setShowAddForm(false)}
             />
@@ -215,7 +215,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold">{prize.name}</h3>
                   <p className="text-gray-600">{prize.description}</p>
-                  <p className="text-purple-600 font-semibold mt-1">Cost: {prize.cost} stars</p>
+                  <p className="text-purple-600 font-semibold mt-1">Cost: {prize.starsCost} stars</p>
                 </div>
                 <div className="flex gap-2">
                   <button

@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
 import { Quest, QuestSeeker } from '../../types';
+import { API_URL } from '../../config';
 
 interface QuestStatusManagementProps {
   quests: Quest[];
@@ -19,7 +20,7 @@ export default function QuestStatusManagement({
 
   const handleApproveQuest = async (questId: string, seekerId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quests/${questId}/approve`, {
+      const response = await fetch(`${API_URL}/api/quests/${questId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ export default function QuestStatusManagement({
 
   const handleRejectQuest = async (questId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quests/${questId}/reject`, {
+      const response = await fetch(`${API_URL}/api/quests/${questId}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

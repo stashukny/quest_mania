@@ -15,7 +15,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
   useEffect(() => {
     const fetchPrizes = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/prizes');
+        const response = await fetch('${API_URL}/api/prizes');
         if (!response.ok) throw new Error('Failed to fetch prizes');
         const data = await response.json();
         setPrizes(data);
@@ -31,7 +31,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
 
   const handleRedeemPrize = async (prizeId: string, starsCost: number) => {
     try {
-      const response = await fetch('http://localhost:3001/api/prizes/redeem', {
+      const response = await fetch('${API_URL}/api/prizes/redeem', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

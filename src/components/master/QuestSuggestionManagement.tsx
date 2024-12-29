@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, XCircle, Lightbulb, Clock } from 'lucide-react';
 import { QuestSuggestion, QuestSeeker } from '../../types';
+import { API_URL } from '../../config';
 
 interface QuestSuggestionManagementProps {
   suggestions: QuestSuggestion[];
@@ -21,7 +22,7 @@ export default function QuestSuggestionManagement({
 
   const handleApproveSuggestion = async (suggestionId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quest-suggestions/${suggestionId}/approve`, {
+      const response = await fetch(`${API_URL}/api/quest-suggestions/${suggestionId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,7 +38,7 @@ export default function QuestSuggestionManagement({
 
   const handleRejectSuggestion = async (suggestionId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quest-suggestions/${suggestionId}/reject`, {
+      const response = await fetch(`${API_URL}/api/quest-suggestions/${suggestionId}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
