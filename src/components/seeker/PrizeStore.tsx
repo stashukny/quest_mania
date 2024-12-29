@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Sparkles } from 'lucide-react';
 import { QuestSeeker, Prize } from '../../types';
 import PrizeCard from './PrizeCard';
+import { API_URL } from '../../config';
 
 interface PrizeStoreProps {
   seeker: QuestSeeker;
@@ -15,7 +16,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
   useEffect(() => {
     const fetchPrizes = async () => {
       try {
-        const response = await fetch('${API_URL}/api/prizes');
+        const response = await fetch(`${API_URL}/api/prizes`);
         if (!response.ok) throw new Error('Failed to fetch prizes');
         const data = await response.json();
         setPrizes(data);
@@ -31,7 +32,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
 
   const handleRedeemPrize = async (prizeId: string, starsCost: number) => {
     try {
-      const response = await fetch('${API_URL}/api/prizes/redeem', {
+      const response = await fetch(`${API_URL}/api/prizes/redeem`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -123,7 +123,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
   // Fetch quests on component mount
   useEffect(() => {
-    fetch('${API_URL}/api/quests')
+    fetch(`${API_URL}/api/quests`)
       .then(res => res.json())
       .then(data => setQuests(data))
       .catch(err => console.error('Error fetching quests:', err));
@@ -148,7 +148,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     };
 
     try {
-      const response = await fetch('${API_URL}/api/quests', {
+      const response = await fetch(`${API_URL}/api/quests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
