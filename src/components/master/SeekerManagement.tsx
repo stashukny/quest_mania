@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, X, Check } from 'lucide-react';
 import { QuestSeeker } from '../../types';
+import { API_URL } from '../../config';
 
 interface SeekerManagementProps {
   seekers: QuestSeeker[];
@@ -75,7 +76,7 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
   const [editingSeekerIds, setEditingSeekerIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/seekers')
+    fetch(`${API_URL}/api/seekers`)
       .then(res => res.json())
       .then(data => setSeekers(data))
       .catch(err => console.error('Error fetching seekers:', err));
@@ -98,7 +99,7 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/seekers', {
+      const response = await fetch(`${API_URL}/api/seekers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +122,7 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
   const handleRemoveSeeker = async (seekerId: string) => {
     if (confirm('Are you sure you want to remove this quest seeker? This action cannot be undone.')) {
       try {
-        const response = await fetch(`http://localhost:3001/api/seekers/${seekerId}`, {
+        const response = await fetch(`${API_URL}/api/seekers/${seekerId}`, {
           method: 'DELETE',
         });
 
@@ -142,7 +143,7 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
 
   const handleSaveSeeker = async (updatedSeeker: QuestSeeker) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/seekers/${updatedSeeker.id}`, {
+      const response = await fetch(`${API_URL}/api/seekers/${updatedSeeker.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

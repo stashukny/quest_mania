@@ -7,6 +7,7 @@ import QuestStatusManagement from './QuestStatusManagement';
 import QuestSuggestionManagement from './QuestSuggestionManagement';
 import HistoryView from './HistoryView';
 import PrizeManagement from './PrizeManagement';
+import { API_URL } from '../../config';
 
 interface QuestMasterDashboardProps {
   seekers: QuestSeeker[];
