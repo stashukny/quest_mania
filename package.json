@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "heroku-postbuild": "npm install && npm run build"
+    "start": "node dist/server/index.js",
+    "heroku-postbuild": "npm install && npm run build && tsc -p server/tsconfig.json"
   },
   "engines": {
     "node": "20.x"

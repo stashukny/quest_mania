@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
 
 interface DbQuest {
@@ -664,6 +664,12 @@ app.post('/api/prizes/redeem', (req, res) => {
     });
 });
 
+// Serve React app for any other routes
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-  });
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
