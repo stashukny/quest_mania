@@ -3,8 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.db = void 0;
-exports.initializeDatabase = initializeDatabase;
+exports.db = exports.initializeDatabase = void 0;
 const sqlite3_1 = __importDefault(require("sqlite3"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
@@ -32,4 +31,5 @@ function initializeDatabase() {
     });
     return db;
 }
+exports.initializeDatabase = initializeDatabase;
 exports.db = initializeDatabase();
