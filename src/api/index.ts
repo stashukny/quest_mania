@@ -1,6 +1,8 @@
 import { Quest } from "../types";
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? '/api'  // In production, use relative path
+  : 'http://localhost:3001/api';  // In development, use full URL
 
 export const api = {
     // Seekers

@@ -8,9 +8,12 @@ const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const database_1 = require("./db/database");
 const crypto_1 = __importDefault(require("crypto"));
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json());
+// Serve static files from the React app
+app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
 // Seekers routes
 app.get('/api/seekers', (req, res) => {
     database_1.db.all('SELECT * FROM seekers', [], (err, seekers) => {
@@ -96,10 +99,6 @@ app.put('/api/quests/:id', (req, res) => {
         }
         res.json(Object.assign(Object.assign({ id: questId }, req.body), { assignedTo: assignedTo }));
     });
-});
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
 });
 // Quest Suggestions endpoints
 app.get('/api/quest-suggestions', (req, res) => {
@@ -460,4 +459,7 @@ app.post('/api/prizes/redeem', (req, res) => {
             });
         });
     });
+});
+app.get('*', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../public/index.html'));
 });
