@@ -7,6 +7,7 @@ import { QuestSeeker, Quest, QuestSuggestion, PrizeRedemption } from './types';
 import { generateCertificateId } from './utils/certificates';
 import { DEFAULT_PRIZES } from './constants/prizes';
 import { api } from './api';
+import { API_URL } from './config';
 
 
 export default function App() {

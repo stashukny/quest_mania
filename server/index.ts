@@ -89,7 +89,7 @@ app.post('/api/quests', async (req, res) => {
     const assignedToJson = JSON.stringify(assignedTo);
     try {
         const { rows } = await pool.query(
-            'INSERT INTO quests (id, title, description, reward, status, duration, assigned_to) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+            'INSERT INTO quests (id, title, description, reward, status, duration, assignedto) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
             [id, title, description, reward, status, duration, assignedToJson]
         );
         res.json({
@@ -108,7 +108,7 @@ app.put('/api/quests/:id', async (req, res) => {
     
     try {
         const { rows } = await pool.query(
-            'UPDATE quests SET title = $1, description = $2, reward = $3, status = $4, duration = $5, assigned_to = $6, is_team_quest = $7 WHERE id = $8 RETURNING *',
+            'UPDATE quests SET title = $1, description = $2, reward = $3, status = $4, duration = $5, assignedto = $6 WHERE id = $8 RETURNING *',
             [title, description, reward, status, duration, assignedToJson, isTeamQuest, questId]
         );
         res.json({
@@ -178,7 +178,7 @@ app.post('/api/prizes/redeem', async (req, res) => {
 
         // Create redemption record
         const { rows } = await client.query(
-            'INSERT INTO prize_redemptions (id, prize_id, seeker_id, redeemed_at, certificate_id, stars_cost) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            'INSERT INTO prize_redemptions (id, prizeid, seekerid, redeemed_at, certificate_id, stars_cost) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [crypto.randomUUID(), prizeId, seekerId, now, certificateId, starsCost]
         );
 
@@ -231,6 +231,44 @@ app.post('/api/quests/:id/approve', async (req, res) => {
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     } finally {
         client.release();
+    }
+});
+
+
+// Prizes endpoints
+app.get('/api/prizes', async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT * FROM prizes WHERE available = true');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+app.post('/api/prizes', async (req, res) => {
+    const { id, name, description, cost, imageUrl } = req.body;
+    try {
+        const { rows } = await pool.query(
+            'INSERT INTO prizes (id, name, description, stars_cost, image_url, available) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [id, name, description, cost, imageUrl, true]
+        );
+        res.json(rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+app.put('/api/prizes/:id', async (req, res) => {
+    const prizeId = req.params.id;
+    const { name, description, cost, imageUrl, available } = req.body;
+    try {
+        const { rows } = await pool.query(
+            'UPDATE prizes SET name = $1, description = $2, stars_cost = $3, image_url = $4, available = $5 WHERE id = $6 RETURNING *',
+            [name, description, cost, imageUrl, available, prizeId]
+        );
+        res.json(rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
 });
 
