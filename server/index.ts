@@ -103,13 +103,13 @@ app.post('/api/quests', async (req, res) => {
 
 app.put('/api/quests/:id', async (req, res) => {
     const questId = req.params.id;
-    const { title, description, reward, status, duration, assignedTo, isTeamQuest } = req.body;
+    const { title, description, reward, status, duration, assignedTo } = req.body;
     const assignedToJson = JSON.stringify(assignedTo);
     
     try {
         const { rows } = await pool.query(
             'UPDATE quests SET title = $1, description = $2, reward = $3, status = $4, duration = $5, assignedto = $6 WHERE id = $7 RETURNING *',
-            [title, description, reward, status, duration, assignedToJson, isTeamQuest, questId]
+            [title, description, reward, status, duration, assignedToJson, questId]
         );
         res.json({
             ...rows[0],
@@ -268,11 +268,11 @@ app.post('/api/prizes', async (req, res) => {
 
 app.put('/api/prizes/:id', async (req, res) => {
     const prizeId = req.params.id;
-    const { name, description, cost, imageUrl, available } = req.body;
+    const { name, description, starsCost, imageUrl, available } = req.body;
     try {
         const { rows } = await pool.query(
             'UPDATE prizes SET name = $1, description = $2, starscost = $3, imageurl = $4, available = $5 WHERE id = $6 RETURNING *',
-            [name, description, cost, imageUrl, available, prizeId]
+            [name, description, starsCost, imageUrl, available, prizeId]
         );
         res.json(rows[0]);
     } catch (err) {
