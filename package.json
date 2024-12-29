@@ -3,11 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "start": "node dist/server/index.js",
-    "compile": "tsc",
-    "copy-assets": "copyfiles -u 1 \"server/db/*.sql\" dist/server/db && copyfiles -u 1 \"src/build/**/*\" dist/public",
-    "build": "npm run compile && npm run copy-assets",
-    "heroku-postbuild": "cd src && npm install && npm run build && cd .. && npm run build"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview"
   },
   "engines": {
     "node": "20.x"
