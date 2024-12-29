@@ -254,7 +254,15 @@ app.post('/api/prizes', async (req, res) => {
         );
         res.json(rows[0]);
     } catch (err) {
-        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+        console.error('Error in POST /api/prizes:', {
+            error: err,
+            stack: err instanceof Error ? err.stack : undefined,
+            body: req.body
+        });
+        res.status(500).json({ 
+            error: err instanceof Error ? err.message : 'Unknown error',
+            details: process.env.NODE_ENV !== 'production' ? err : undefined
+        });
     }
 });
 
