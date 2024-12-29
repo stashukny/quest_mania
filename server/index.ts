@@ -16,11 +16,10 @@ app.use(express.static(path.join(process.cwd(), 'dist')));
 
 // PostgreSQL connection configuration
 const pool = new Pool({
-    user: process.env.PGUSER || 'postgres',
-    host: process.env.PGHOST || 'localhost',
-    database: process.env.PGDATABASE || 'questdb',
-    password: process.env.PGPASSWORD || 'postgres',
-    port: parseInt(process.env.PGPORT || '5432', 10),
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // Seekers routes
