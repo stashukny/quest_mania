@@ -8,8 +8,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "moduleResolution": "node"
   },
   "include": ["server/**/*"],
-  "exclude": ["node_modules", "client"]
+  "exclude": ["node_modules"]
 }
