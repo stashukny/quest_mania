@@ -3,7 +3,8 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
 import path from 'path';
-import { Pool } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 import { Quest } from './types';
 
 const app = express();
