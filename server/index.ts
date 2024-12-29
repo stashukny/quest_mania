@@ -37,7 +37,7 @@ app.post('/api/seekers', async (req, res) => {
     const { id, name, pin, avatarUrl, stars } = req.body;
     try {
         const { rows } = await pool.query(
-            'INSERT INTO seekers (id, name, pin, avatar_url, stars) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            'INSERT INTO seekers (id, name, pin, avatarurl, stars) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [id, name, pin, avatarUrl, stars]
         );
         res.json(rows[0]);
@@ -61,7 +61,7 @@ app.put('/api/seekers/:id', async (req, res) => {
     const { name, pin, avatarUrl, stars } = req.body;
     try {
         const { rows } = await pool.query(
-            'UPDATE seekers SET name = $1, pin = $2, avatar_url = $3, stars = $4 WHERE id = $5 RETURNING *',
+            'UPDATE seekers SET name = $1, pin = $2, avatarurl = $3, stars = $4 WHERE id = $5 RETURNING *',
             [name, pin, avatarUrl, stars, seekerId]
         );
         res.json(rows[0]);
