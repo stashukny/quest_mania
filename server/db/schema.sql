@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS prizes (
     description TEXT,
     starsCost INTEGER NOT NULL,
     imageUrl TEXT,
-    available BOOLEAN DEFAULT 1
+    available BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS prize_redemptions (
