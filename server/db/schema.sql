@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS prizes (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
-    starsCost INTEGER NOT NULL,
-    imageUrl TEXT,
+    starscost INTEGER NOT NULL,
+    imageurl TEXT,
     available BOOLEAN DEFAULT TRUE
 );
 

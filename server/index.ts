@@ -120,6 +120,17 @@ app.put('/api/quests/:id', async (req, res) => {
     }
 });
 
+app.delete('/api/quests/:id', async (req, res) => {
+    const questId = req.params.id;
+    try {
+        await pool.query('DELETE FROM quests WHERE id = $1', [questId]);
+        res.json({ message: `Quest ${questId} deleted successfully` });
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+
 // Quest Suggestions routes
 app.get('/api/quest-suggestions', async (req, res) => {
     try {
@@ -238,7 +249,7 @@ app.post('/api/quests/:id/approve', async (req, res) => {
 // Prizes endpoints
 app.get('/api/prizes', async (req, res) => {
     try {
-        const { rows } = await pool.query('SELECT * FROM prizes WHERE available = true');
+        const { rows } = await pool.query('SELECT id, name, description, starscost as "starsCost", imageurl as "imageUrl", available FROM prizes WHERE available = true');
         res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
