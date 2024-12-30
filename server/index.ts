@@ -147,7 +147,7 @@ app.post('/api/quest-suggestions', async (req, res) => {
     
     try {
         const { rows } = await pool.query(
-            'INSERT INTO quest_suggestions (id, title, description, suggested_by, status, created_at, desired_reward, duration) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+            'INSERT INTO quest_suggestions (id, title, description, suggestedby, status, createdat, desiredreward, duration) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
             [id, title, description, suggestedBy, 'pending', createdAt, desiredReward, duration]
         );
         res.json(rows[0]);
@@ -189,7 +189,7 @@ app.post('/api/prizes/redeem', async (req, res) => {
 
         // Create redemption record
         const { rows } = await client.query(
-            'INSERT INTO prize_redemptions (id, prizeid, seekerid, redeemed_at, certificate_id, stars_cost) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            'INSERT INTO prize_redemptions (id, prizeid, seekerid, redeemedat, certificateid, starscost) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [crypto.randomUUID(), prizeId, seekerId, now, certificateId, starsCost]
         );
 
