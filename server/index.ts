@@ -280,6 +280,40 @@ app.put('/api/prizes/:id', async (req, res) => {
     }
 });
 
+app.delete('/api/prizes/:id', async (req, res) => {
+    const prizeId = req.params.id;
+    const client = await pool.connect();
+    
+    try {
+        await client.query('BEGIN');
+        
+        // First check if there are any redemptions
+        const { rows } = await client.query(
+            'SELECT COUNT(*) as count FROM prize_redemptions WHERE prizeid = $1',
+            [prizeId]
+        );
+
+        if (rows[0].count > 0) {
+            throw new Error('Cannot delete prize with existing redemptions');
+        }
+
+        // If no redemptions, proceed with deletion
+        await client.query('DELETE FROM prizes WHERE id = $1', [prizeId]);
+        
+        await client.query('COMMIT');
+        res.json({ message: 'Prize deleted successfully' });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        if (err instanceof Error && err.message === 'Cannot delete prize with existing redemptions') {
+            res.status(400).json({ error: err.message });
+        } else {
+            res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+        }
+    } finally {
+        client.release();
+    }
+});
+
 // Serve React app for any other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'dist/index.html'));

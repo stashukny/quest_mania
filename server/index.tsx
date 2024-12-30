@@ -123,6 +123,17 @@ app.post('/api/quests', async (req, res) => {
     }
 });
 
+app.delete('/api/quests/:id', async (req, res) => {
+    const questId = req.params.id;
+    try {
+        await pool.query('DELETE FROM quests WHERE id = $1', [questId]);
+        res.json({ message: `Quest ${questId} deleted successfully` });
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+
 // Quest Suggestions endpoints
 app.get('/api/quest-suggestions', async (req, res) => {
     try {
