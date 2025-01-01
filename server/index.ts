@@ -334,3 +334,109 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+app.post('/api/quest-suggestions/:id/approve', async (req, res) => {
+    const suggestionId = req.params.id;
+    const client = await pool.connect();
+    
+    try {
+        await client.query('BEGIN');
+
+        // Get the suggestion details
+        const { rows: [suggestion] } = await client.query(
+            'SELECT * FROM quest_suggestions WHERE id = $1',
+            [suggestionId]
+        );
+
+        const questId = crypto.randomUUID();
+        // Create new quest from suggestion
+        await client.query(
+            'INSERT INTO quests (id, title, description, reward, status, duration, assignedto) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+            [questId, suggestion.title, suggestion.description, suggestion.desiredreward, 'active', suggestion.duration, JSON.stringify([suggestion.suggestedby])]
+        );
+
+        // Update suggestion status
+        await client.query(
+            'UPDATE quest_suggestions SET status = $1 WHERE id = $2',
+            ['approved', suggestionId]
+        );
+
+        await client.query('COMMIT');
+        res.json({
+            suggestion: { ...suggestion, status: 'approved' },
+            quest: {
+                id: questId,
+                title: suggestion.title,
+                description: suggestion.description,
+                reward: suggestion.desiredreward,
+                status: 'active',
+                duration: suggestion.duration,
+                assignedTo: [suggestion.suggestedby]
+            }
+        });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    } finally {
+        client.release();
+    }
+});
+
+app.post('/api/quest-suggestions/:id/reject', async (req, res) => {
+    const suggestionId = req.params.id;
+    try {
+        await pool.query(
+            'UPDATE quest_suggestions SET status = $1 WHERE id = $2',
+            ['rejected', suggestionId]
+        );
+        res.json({ 
+            id: suggestionId,
+            status: 'rejected'
+        });
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+app.get('/api/seekers/:id/quests', async (req, res) => {
+    const seekerId = req.params.id;
+    
+    try {
+        const { rows } = await pool.query(
+            `SELECT * FROM quests 
+             WHERE status IN ('active', 'in_progress', 'pending')`,
+            []
+        );
+        
+        const parsedQuests = rows.map(quest => ({
+            ...quest,
+            assignedTo: quest.assignedto ? JSON.parse(quest.assignedto) : []
+        }));
+        
+        res.json(parsedQuests);
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+app.post('/api/quests/:id/complete', async (req, res) => {
+    const questId = req.params.id;
+    const { seekerId } = req.body;
+    const now = new Date().toISOString();
+    
+    try {
+        const { rows } = await pool.query(
+            'UPDATE quests SET status = $1, completedat = $2 WHERE id = $3 RETURNING *',
+            ['pending', now, questId]
+        );
+        
+        res.json({ 
+            status: 'pending',
+            completedAt: now 
+        });
+    } catch (err) {
+        console.error('Update error:', err);
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
