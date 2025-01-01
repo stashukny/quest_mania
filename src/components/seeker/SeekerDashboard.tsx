@@ -6,6 +6,7 @@ import PrizeStore from './PrizeStore';
 import RedemptionCertificate from './RedemptionCertificate';
 import QuestSuggestionForm from './QuestSuggestion';
 import { API_URL } from '../../config';
+import api from '../../api';
 
 interface SeekerDashboardProps {
   seeker: QuestSeeker;
@@ -39,19 +40,17 @@ export default function SeekerDashboard({
 
   useEffect(() => {
     const fetchQuests = async () => {
-        try {
-            const response = await fetch(`${API_URL}/api/seekers/${seeker.id}/quests`);
-            if (!response.ok) throw new Error('Failed to fetch quests');
-            const data = await response.json();
-            setQuests(data);
-        } catch (error) {
-            console.error('Error fetching quests:', error);
-        } finally {
-            setLoading(false);
+        if (seeker) {
+            try {
+                const quests = await api.getSeekerQuests(seeker.id);
+                setQuests(quests);
+            } catch (err) {
+                console.error('Error fetching seeker quests:', err);
+            }
         }
     };
     fetchQuests();
-  }, [seeker.id]);
+  }, [seeker]);
 
   const assignedQuests = loading ? [] : quests.filter(quest => 
     quest.assignedTo?.includes(seeker.id)

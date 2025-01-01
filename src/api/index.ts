@@ -48,4 +48,10 @@ export const api = {
         });
         return response.json();
     },
+
+    getSeekerQuests: async (seekerId: string) => {
+        const response = await fetch(`${API_URL}/api/seekers/${seekerId}/quests`);
+        if (!response.ok) throw new Error('Failed to fetch seeker quests');
+        return response.json();
+    },
 };

@@ -402,19 +402,24 @@ app.get('/api/seekers/:id/quests', async (req, res) => {
     const seekerId = req.params.id;
     
     try {
+        console.log('Fetching quests for seeker:', seekerId);
         const { rows } = await pool.query(
             `SELECT * FROM quests 
-             WHERE status IN ('active', 'in_progress', 'pending')`,
-            []
+             WHERE status IN ('active', 'in_progress', 'pending')
+             AND assignedto::jsonb ? $1`,
+            [seekerId]
         );
+        console.log('Found quests:', rows);
         
         const parsedQuests = rows.map(quest => ({
             ...quest,
             assignedTo: quest.assignedto ? JSON.parse(quest.assignedto) : []
         }));
+        console.log('Parsed quests:', parsedQuests);
         
         res.json(parsedQuests);
     } catch (err) {
+        console.error('Error fetching seeker quests:', err);
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
 });
