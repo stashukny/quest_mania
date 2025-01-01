@@ -41,11 +41,14 @@ export default function SeekerDashboard({
   useEffect(() => {
     const fetchQuests = async () => {
         if (seeker) {
+            setLoading(true);
             try {
                 const quests = await api.getSeekerQuests(seeker.id);
                 setQuests(quests);
             } catch (err) {
                 console.error('Error fetching seeker quests:', err);
+            } finally {
+                setLoading(false);
             }
         }
     };
