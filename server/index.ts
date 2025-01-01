@@ -404,7 +404,11 @@ app.get('/api/seekers/:id/quests', async (req, res) => {
     try {
         console.log('Fetching quests for seeker:', seekerId);
         const { rows } = await pool.query(
-            `SELECT * FROM quests 
+            `SELECT id, title, description, reward, status, duration, 
+                    assignedto::text as "assignedTo", 
+                    startedat as "startedAt", 
+                    completedat as "completedAt"
+             FROM quests 
              WHERE status IN ('active', 'in_progress', 'pending')
              AND assignedto::jsonb ? $1`,
             [seekerId]
@@ -413,7 +417,7 @@ app.get('/api/seekers/:id/quests', async (req, res) => {
         
         const parsedQuests = rows.map(quest => ({
             ...quest,
-            assignedTo: quest.assignedto ? JSON.parse(quest.assignedto) : []
+            assignedTo: quest.assignedTo ? JSON.parse(quest.assignedTo) : []
         }));
         console.log('Parsed quests:', parsedQuests);
         
