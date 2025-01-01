@@ -43,8 +43,9 @@ export default function SeekerDashboard({
         if (seeker) {
             setLoading(true);
             try {
-                const quests = await api.getSeekerQuests(seeker.id);
-                setQuests(quests);
+                const response = await api.getSeekerQuests(seeker.id);
+                console.log('API Response:', response);
+                setQuests(response.quests || []);
             } catch (err) {
                 console.error('Error fetching seeker quests:', err);
             } finally {
