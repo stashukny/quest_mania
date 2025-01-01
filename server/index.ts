@@ -22,6 +22,12 @@ const pool = new Pool({
     }
 });
 
+// Add this before your routes
+app.use((req, res, next) => {
+    process.stdout.write(`${new Date().toISOString()} ${req.method} ${req.url}\n`);
+    next();
+});
+
 // Seekers routes
 app.get('/api/seekers', async (req, res) => {
     try {
@@ -399,6 +405,7 @@ app.post('/api/quest-suggestions/:id/reject', async (req, res) => {
 });
 
 app.get('/api/seekers/:id/quests', async (req, res) => {
+    process.stdout.write(`Request received for seeker quests: ${req.params.id}\n`);
     const seekerId = req.params.id;
     
     try {
@@ -463,5 +470,11 @@ app.post('/api/quests/:id/complete', async (req, res) => {
         console.error('Update error:', err);
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
+});
+
+// Add this after your routes but before app.listen
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    process.stdout.write(`Error: ${err.message}\n${err.stack}\n`);
+    res.status(500).json({ error: err.message });
 });
 
