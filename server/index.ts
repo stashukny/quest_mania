@@ -403,23 +403,29 @@ app.get('/api/seekers/:id/quests', async (req, res) => {
     
     try {
         console.log('Fetching quests for seeker:', seekerId);
+        
+        // First, let's check what quests exist
+        const { rows: allQuests } = await pool.query(
+            'SELECT id, title, assignedto FROM quests WHERE status IN ($1, $2, $3)',
+            ['active', 'in_progress', 'pending']
+        );
+        console.log('All active quests:', allQuests);
+
+        // Then run our filtered query
         const { rows } = await pool.query(
-            `SELECT id, title, description, reward, status, duration, 
-                    assignedto::text as "assignedTo", 
-                    startedat as "startedAt", 
-                    completedat as "completedAt"
-             FROM quests 
+            `SELECT * FROM quests 
              WHERE status IN ('active', 'in_progress', 'pending')
              AND assignedto::jsonb ? $1`,
             [seekerId]
         );
-        console.log('Found quests:', rows);
+        console.log('Found quests for seeker:', rows);
+        console.log('Sample assignedto value:', rows[0]?.assignedto);
         
         const parsedQuests = rows.map(quest => ({
             ...quest,
-            assignedTo: quest.assignedTo ? JSON.parse(quest.assignedTo) : []
+            assignedTo: quest.assignedto ? JSON.parse(quest.assignedto) : []
         }));
-        console.log('Parsed quests:', parsedQuests);
+        console.log('Final parsed quests:', parsedQuests);
         
         res.json(parsedQuests);
     } catch (err) {
