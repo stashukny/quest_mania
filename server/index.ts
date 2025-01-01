@@ -331,16 +331,6 @@ app.delete('/api/prizes/:id', async (req, res) => {
     }
 });
 
-// Serve React app for any other routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(process.cwd(), 'dist/index.html'));
-});
-
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-});
-
 app.post('/api/quest-suggestions/:id/approve', async (req, res) => {
     const suggestionId = req.params.id;
     const client = await pool.connect();
@@ -472,9 +462,18 @@ app.post('/api/quests/:id/complete', async (req, res) => {
     }
 });
 
-// Add this after your routes but before app.listen
+// Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     process.stdout.write(`Error: ${err.message}\n${err.stack}\n`);
     res.status(500).json({ error: err.message });
 });
 
+// Serve React app for any other routes - this should be last!
+app.get('*', (req, res) => {
+    res.sendFile(path.join(process.cwd(), 'dist/index.html'));
+});
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
