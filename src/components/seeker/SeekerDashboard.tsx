@@ -6,7 +6,7 @@ import PrizeStore from './PrizeStore';
 import RedemptionCertificate from './RedemptionCertificate';
 import QuestSuggestionForm from './QuestSuggestion';
 import { API_URL } from '../../config';
-import api from '../../api';
+import { api } from '../../api';
 
 interface SeekerDashboardProps {
   seeker: QuestSeeker;
