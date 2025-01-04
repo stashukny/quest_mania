@@ -462,6 +462,67 @@ app.post('/api/quests/:id/complete', async (req, res) => {
     }
 });
 
+// Seeker quest management endpoints
+app.post('/api/quests/:id/start', async (req, res) => {
+    const questId = req.params.id;
+    const { seekerId } = req.body;
+    const now = new Date().toISOString();
+    
+    try {
+        const { rows } = await pool.query(
+            'UPDATE quests SET status = $1, startedat = $2 WHERE id = $3 RETURNING *',
+            ['in_progress', now, questId]
+        );
+        
+        res.json({ 
+            status: 'in_progress',
+            startedAt: now 
+        });
+    } catch (err) {
+        console.error('Error starting quest:', err);
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
+app.post('/api/quests/:id/complete-request', async (req, res) => {
+    const questId = req.params.id;
+    const { seekerId } = req.body;
+    const completionId = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Check if quest is already completed
+        const { rows } = await client.query(
+            'SELECT * FROM quest_completions WHERE questid = $1 AND seekerid = $2',
+            [questId, seekerId]
+        );
+
+        if (rows.length > 0) {
+            throw new Error('Quest completion already submitted');
+        }
+
+        await client.query(
+            'INSERT INTO quest_completions (id, questid, seekerid, status, completedat) VALUES ($1, $2, $3, $4, $5)',
+            [completionId, questId, seekerId, 'pending', now]
+        );
+
+        await client.query('COMMIT');
+        res.json({ 
+            id: completionId, 
+            status: 'pending', 
+            completedAt: now 
+        });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(400).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    } finally {
+        client.release();
+    }
+});
+
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     process.stdout.write(`Error: ${err.message}\n${err.stack}\n`);
