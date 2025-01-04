@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
 import { Quest, QuestSeeker } from '../../types';
 import { API_URL } from '../../config';
@@ -11,11 +11,12 @@ interface QuestStatusManagementProps {
 }
 
 export default function QuestStatusManagement({ 
-  quests, 
+  quests: initialQuests,
   seekers,
   onApproveQuest,
   onRejectQuest 
 }: QuestStatusManagementProps) {
+  const [quests, setQuests] = useState(initialQuests);
   const pendingQuests = quests.filter(quest => quest.status === 'pending');
 
   const handleApproveQuest = async (questId: string, seekerId: string) => {
@@ -44,6 +45,11 @@ export default function QuestStatusManagement({
         // Call the parent component's handler
         onApproveQuest(questId, seekerId);
       }
+
+      // Remove the approved quest from pendingQuests immediately
+      const updatedQuests = quests.filter(q => q.id !== questId);
+      setQuests(updatedQuests);
+      
     } catch (error) {
       console.error('Error approving quest:', error);
     }

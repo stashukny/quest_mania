@@ -523,6 +523,21 @@ app.post('/api/quests/:id/complete-request', async (req, res) => {
     }
 });
 
+app.post('/api/quests/:id/reject', async (req, res) => {
+    try {
+        await pool.query(
+            'UPDATE quests SET status = $1, completedat = NULL WHERE id = $2',
+            ['in_progress', req.params.id]
+        );
+        res.json({ 
+            status: 'in_progress',
+            message: 'Quest completion rejected'
+        });
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     process.stdout.write(`Error: ${err.message}\n${err.stack}\n`);
