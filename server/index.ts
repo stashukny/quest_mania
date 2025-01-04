@@ -538,6 +538,21 @@ app.post('/api/quests/:id/reject', async (req, res) => {
     }
 });
 
+app.post('/api/quests/:id/assign', async (req, res) => {
+    const questId = req.params.id;
+    const { seekerId } = req.body;
+    
+    try {
+        const { rows } = await pool.query(
+            'UPDATE quests SET assignedto = $1 WHERE id = $2 RETURNING *',
+            [seekerId, questId]
+        );
+        res.json(rows[0]);
+    } catch (err) {
+        res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
+    }
+});
+
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     process.stdout.write(`Error: ${err.message}\n${err.stack}\n`);

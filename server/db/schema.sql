@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS quests (
     reward INTEGER NOT NULL,
     status TEXT NOT NULL,
     duration TEXT NOT NULL,
-    assignedTo TEXT,
-    startedAt TEXT,
-    completedAt TEXT
+    assignedto TEXT,
+    startedat TEXT,
+    completedat TEXT
 );
 
 CREATE TABLE IF NOT EXISTS quest_suggestions (

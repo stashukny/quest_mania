@@ -13,7 +13,7 @@ export interface Quest {
   title: string;
   description: string;
   reward: number;
-  assignedTo: string[];
+  assignedTo: string;
   status: 'active' | 'pending' | 'completed' | 'in_progress';
   isTeamQuest?: boolean;
   completedAt?: string;

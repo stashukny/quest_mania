@@ -98,7 +98,7 @@ export default function QuestStatusManagement({
       </div>
       <div className="space-y-4">
         {pendingQuests.map((quest) => {
-          const seeker = seekers.find(s => quest.assignedTo.includes(s.id));
+          const seeker = seekers.find(s => s.id === quest.assignedTo);
           
           return (
             <div key={quest.id} className="border rounded-lg p-4 bg-yellow-50">
