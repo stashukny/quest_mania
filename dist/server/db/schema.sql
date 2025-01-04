@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS quests (
     reward INTEGER NOT NULL,
     status TEXT NOT NULL,
     duration TEXT NOT NULL,
-    assignedTo TEXT,
-    startedAt TEXT,
-    completedAt TEXT
+    assignedto TEXT,
+    startedat TEXT,
+    completedat TEXT
 );
 
 CREATE TABLE IF NOT EXISTS quest_suggestions (
@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS prizes (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
-    starsCost INTEGER NOT NULL,
-    imageUrl TEXT,
+    starscost INTEGER NOT NULL,
+    imageurl TEXT,
     available BOOLEAN DEFAULT TRUE
 );
 
