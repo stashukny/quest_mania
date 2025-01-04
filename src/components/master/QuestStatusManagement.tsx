@@ -21,12 +21,17 @@ export default function QuestStatusManagement({
 
   const handleApproveQuest = async (questId: string, seekerId: string) => {
     try {
+      if (!seekerId) {
+        console.error('No seeker ID provided');
+        return;
+      }
+
       const response = await fetch(`${API_URL}/api/quests/${questId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ seekerId }),
+        body: JSON.stringify({ seekerId: seekerId })
       });
 
       if (!response.ok) {
@@ -38,11 +43,6 @@ export default function QuestStatusManagement({
       // Update the seeker's stars in the parent component
       const seeker = seekers.find(s => s.id === seekerId);
       if (seeker) {
-        const updatedSeeker = {
-          ...seeker,
-          stars: seeker.stars + data.reward
-        };
-        // Call the parent component's handler
         onApproveQuest(questId, seekerId);
       }
 
