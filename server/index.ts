@@ -433,26 +433,50 @@ app.get('/api/seekers/:id/quests', async (req, res) => {
     }
 });
 
-app.post('/api/quests/:id/complete', async (req, res) => {
+interface RequestParams {
+    id: string;
+}
+
+interface RequestBody {
+    seekerId: string;
+}
+
+type RequestHandler = (req: express.Request<RequestParams, any, RequestBody>, res: express.Response) => Promise<any>;
+
+// Use these types for all route handlers
+app.post('/api/quests/:id/complete', 
+    (async (req, res) => {
     const questId = req.params.id;
     const { seekerId } = req.body;
     const now = new Date().toISOString();
     
     try {
+        // First get the quest to verify the seeker
+        const { rows: [quest] } = await pool.query(
+            'SELECT * FROM quests WHERE id = $1',
+            [questId]
+        );
+
+        // Verify this seeker is assigned to this quest
+        if (quest.assignedto !== seekerId) {
+            return res.status(400).json({ error: 'Seeker not assigned to this quest' });
+        }
+
         const { rows } = await pool.query(
-            'UPDATE quests SET status = $1, completedat = $2 WHERE id = $3 RETURNING *',
-            ['pending', now, questId]
+            'UPDATE quests SET status = $1, completedat = $2, completedby = $3 WHERE id = $4 RETURNING *',
+            ['pending', now, seekerId, questId]
         );
         
         res.json({ 
             status: 'pending',
-            completedAt: now 
+            completedAt: now,
+            completedBy: seekerId
         });
     } catch (err) {
         console.error('Update error:', err);
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
-});
+}) as RequestHandler);
 
 // Seeker quest management endpoints
 app.post('/api/quests/:id/start', async (req, res) => {

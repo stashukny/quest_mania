@@ -122,14 +122,7 @@ export default function QuestStatusManagement({
               
               <div className="flex gap-2">
                 <button
-                  onClick={() => {
-                    console.log('Approving quest:', {
-                      questId: quest.id,
-                      seekerId: quest.assignedTo,
-                      seeker: seeker
-                    });
-                    handleApproveQuest(quest.id, quest.assignedTo);
-                  }}
+                  onClick={() => handleApproveQuest(quest.id, quest.assignedTo)}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <CheckCircle className="w-4 h-4" />
