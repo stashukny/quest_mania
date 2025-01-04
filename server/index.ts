@@ -80,11 +80,7 @@ app.put('/api/seekers/:id', async (req, res) => {
 app.get('/api/quests', async (req, res) => {
     try {
         const { rows } = await pool.query('SELECT * FROM quests');
-        const parsedQuests = rows.map((quest: Quest) => ({
-            ...quest,
-            assignedTo: quest.assignedTo ? JSON.parse(quest.assignedTo) : []
-        }));
-        res.json(parsedQuests);
+        res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
@@ -92,16 +88,12 @@ app.get('/api/quests', async (req, res) => {
 
 app.post('/api/quests', async (req, res) => {
     const { id, title, description, reward, status, duration, assignedTo } = req.body;
-    const assignedToJson = JSON.stringify(assignedTo);
     try {
         const { rows } = await pool.query(
             'INSERT INTO quests (id, title, description, reward, status, duration, assignedto) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-            [id, title, description, reward, status, duration, assignedToJson]
+            [id, title, description, reward, status, duration, assignedTo]
         );
-        res.json({
-            ...rows[0],
-            assignedTo: assignedTo
-        });
+        res.json(rows[0]);
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
