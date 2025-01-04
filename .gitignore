@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+quest_mania/bin/*
+quest_mania/lib/*
+server/__pycache__/
