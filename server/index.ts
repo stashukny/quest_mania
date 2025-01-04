@@ -221,7 +221,7 @@ app.post('/api/quests/:id/approve', async (req, res) => {
 
         // Update quest status
         await client.query(
-            'UPDATE quests SET status = $1, completed_at = $2 WHERE id = $3',
+            'UPDATE quests SET status = $1, completedat = $2 WHERE id = $3',
             ['completed', now, questId]
         );
 
