@@ -46,3 +46,5 @@ CREATE TABLE IF NOT EXISTS prize_redemptions (
     certificateId TEXT NOT NULL,
     starsCost INTEGER NOT NULL
 );
+
+UPDATE quests SET assignedto = assignedto->0 WHERE assignedto IS NOT NULL;

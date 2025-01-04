@@ -102,17 +102,13 @@ app.post('/api/quests', async (req, res) => {
 app.put('/api/quests/:id', async (req, res) => {
     const questId = req.params.id;
     const { title, description, reward, status, duration, assignedTo } = req.body;
-    const assignedToJson = JSON.stringify(assignedTo);
     
     try {
         const { rows } = await pool.query(
             'UPDATE quests SET title = $1, description = $2, reward = $3, status = $4, duration = $5, assignedto = $6 WHERE id = $7 RETURNING *',
-            [title, description, reward, status, duration, assignedToJson, questId]
+            [title, description, reward, status, duration, assignedTo, questId]
         );
-        res.json({
-            ...rows[0],
-            assignedTo: assignedTo
-        });
+        res.json(rows[0]);
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : 'Unknown error' });
     }
