@@ -68,6 +68,10 @@ export default function QuestStatusManagement({
         throw new Error('Failed to reject quest');
       }
 
+      // Remove the rejected quest from local state immediately
+      const updatedQuests = quests.filter(q => q.id !== questId);
+      setQuests(updatedQuests);
+      
       onRejectQuest(questId);
     } catch (error) {
       console.error('Error rejecting quest:', error);

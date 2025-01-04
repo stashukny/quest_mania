@@ -52,24 +52,35 @@ export default function QuestMasterDashboard({
   const pendingApprovalsCount = quests.filter(q => q.status === 'pending').length;
   const pendingSuggestionsCount = suggestions.filter(s => s.status === 'pending').length;
 
-  const handleApproveQuest = (questId: string, seekerId: string) => {
-    const quest = quests.find(q => q.id === questId);
-    const seeker = seekers.find(s => s.id === seekerId);
-    
-    if (!quest || !seeker) return;
+  const handleQuestApproval = async (questId: string, seekerId: string) => {
+    try {
+        const response = await fetch(`${API_URL}/api/quests/${questId}/approve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ seekerId }),
+        });
 
-    setQuests(quests.map(q => 
-      q.id === questId ? { 
-        ...q, 
-        status: 'completed',
-        completedAt: new Date().toISOString(),
-        completedBy: seekerId
-      } : q
-    ));
+        if (!response.ok) throw new Error('Failed to approve quest');
+        const data = await response.json();
 
-    setSeekers(seekers.map(s => 
-      s.id === seekerId ? { ...s, stars: s.stars + quest.reward } : s
-    ));
+        // Update the seeker's stars
+        setSeekers(prevSeekers => prevSeekers.map(seeker => 
+            seeker.id === seekerId 
+                ? { ...seeker, stars: seeker.stars + data.reward }
+                : seeker
+        ));
+
+        // Update quests list
+        setQuests(prevQuests => prevQuests.map(quest =>
+            quest.id === questId
+                ? { ...quest, status: 'completed' }
+                : quest
+        ));
+    } catch (error) {
+        console.error('Error approving quest:', error);
+    }
   };
 
   const handleRejectQuest = (questId: string) => {
@@ -176,7 +187,7 @@ export default function QuestMasterDashboard({
           <QuestStatusManagement
             quests={quests}
             seekers={seekers}
-            onApproveQuest={handleApproveQuest}
+            onApproveQuest={handleQuestApproval}
             onRejectQuest={handleRejectQuest}
           />
         )}
