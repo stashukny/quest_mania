@@ -345,10 +345,10 @@ app.post('/api/quest-suggestions/:id/approve', async (req, res) => {
         );
 
         const questId = crypto.randomUUID();
-        // Create new quest from suggestion
+        // Create new quest from suggestion - note suggestedby is now directly assigned
         await client.query(
             'INSERT INTO quests (id, title, description, reward, status, duration, assignedto) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-            [questId, suggestion.title, suggestion.description, suggestion.desiredreward, 'active', suggestion.duration, JSON.stringify([suggestion.suggestedby])]
+            [questId, suggestion.title, suggestion.description, suggestion.desiredreward, 'active', suggestion.duration, suggestion.suggestedby]
         );
 
         // Update suggestion status
@@ -367,7 +367,7 @@ app.post('/api/quest-suggestions/:id/approve', async (req, res) => {
                 reward: suggestion.desiredreward,
                 status: 'active',
                 duration: suggestion.duration,
-                assignedTo: [suggestion.suggestedby]
+                assignedTo: suggestion.suggestedby  // Now a single string
             }
         });
     } catch (err) {
