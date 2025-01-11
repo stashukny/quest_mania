@@ -115,7 +115,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     title: '',
     description: '',
     reward: 1,
-    assignedTo: [] as string[],
+    assignedTo: '',
     duration: 'none' as QuestDuration,
   });
   const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
@@ -124,27 +124,29 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
   useEffect(() => {
     fetch('http://localhost:3001/api/quests')
       .then(res => res.json())
-      .then(data => setQuests(data))
+      .then(data => {
+        console.log('Quests data:', data);  // Debug log
+        setQuests(data);
+      })
       .catch(err => console.error('Error fetching quests:', err));
   }, [setQuests]);
 
   const handleCreateQuest = async () => {
-    if (!newQuest.title || !newQuest.description) return;
-
-    const assignedTo = newQuest.assignedTo.length === 0 
-      ? seekers.map(seeker => seeker.id)
-      : newQuest.assignedTo;
+    if (!newQuest.title || !newQuest.description || !newQuest.assignedTo) return;
 
     const quest: Quest = {
       id: crypto.randomUUID(),
       title: newQuest.title,
       description: newQuest.description,
       reward: newQuest.reward,
-      assignedTo,
+      assigned_to: newQuest.assignedTo,
       status: 'active',
-      isTeamQuest: newQuest.assignedTo.length === 0,
       duration: newQuest.duration,
+      started_at: null,
+      completed_at: null
     };
+
+    console.log('Creating quest:', quest);
 
     try {
       const response = await fetch('http://localhost:3001/api/quests', {
@@ -156,7 +158,8 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create quest');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to create quest');
       }
 
       const savedQuest = await response.json();
@@ -165,7 +168,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
         title: '',
         description: '',
         reward: 1,
-        assignedTo: [],
+        assignedTo: '',
         duration: 'none',
       });
     } catch (error) {
@@ -220,6 +223,9 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     }
   };
 
+  // Add a filter for active quests
+  const activeQuests = quests.filter(quest => quest.status === 'active');
+
   return (
     <>
       <div className="bg-white rounded-lg shadow-xl p-6 mb-8">
@@ -270,23 +276,17 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
                 Assign To
               </label>
               <select
-                multiple
                 value={newQuest.assignedTo}
-                onChange={(e) => {
-                  const selected = Array.from(e.target.selectedOptions, option => option.value);
-                  setNewQuest({ ...newQuest, assignedTo: selected });
-                }}
+                onChange={(e) => setNewQuest({ ...newQuest, assignedTo: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
+                <option value="">Select a seeker</option>
                 {seekers.map((seeker) => (
                   <option key={seeker.id} value={seeker.id}>
                     {seeker.name}
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-sm text-gray-500">
-                Leave empty to assign to all team members
-              </p>
             </div>
           </div>
           <button
@@ -302,7 +302,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
       <div className="bg-white rounded-lg shadow-xl p-6">
         <h2 className="text-2xl font-semibold mb-4">Active Quests</h2>
         <div className="grid grid-cols-1 gap-4">
-          {quests.map((quest) => (
+          {activeQuests.map((quest) => (
             editingQuestId === quest.id ? (
               <EditableQuest
                 key={quest.id}
@@ -349,25 +349,13 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
                   </div>
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
-                  {quest.isTeamQuest ? (
-                    <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                      Team Quest
-                    </span>
-                  ) : (
-                    <span>
-                      Assigned to:{' '}
-                      {seekers
-                        .filter((s) => quest.assignedTo.includes(s.id))
-                        .map((s) => s.name)
-                        .join(', ')}
-                    </span>
-                  )}
+                  Assigned to: {seekers.find(s => s.id === quest.assigned_to)?.name || 'Unknown'}
                 </div>
               </div>
             )
           ))}
-          {quests.length === 0 && (
-            <p className="text-gray-500 text-center py-8">No quests created yet</p>
+          {activeQuests.length === 0 && (
+            <p className="text-gray-500 text-center py-8">No active quests</p>
           )}
         </div>
       </div>

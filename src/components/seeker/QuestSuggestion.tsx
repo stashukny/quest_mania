@@ -7,7 +7,7 @@ interface QuestSuggestionProps {
 }
 
 export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) {
-  const [suggestion, setSuggestion] = useState({
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
     desiredReward: 1,
@@ -15,34 +15,47 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!suggestion.title || !suggestion.description || isSubmitting) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title || !formData.description || isSubmitting) return;
 
     setIsSubmitting(true);
+    
+    const newSuggestion = {
+        id: crypto.randomUUID(),
+        title: formData.title,
+        description: formData.description,
+        suggested_by: seekerId,
+        desired_reward: formData.desiredReward,
+        duration: formData.duration,
+        status: 'pending',
+        created_at: new Date().toISOString()
+    };
+
     try {
-      const response = await fetch('http://localhost:3001/api/quest-suggestions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: suggestion.title,
-          description: suggestion.description,
-          suggestedBy: seekerId,
-          createdAt: new Date().toISOString(),
-          desiredReward: suggestion.desiredReward,
-          duration: suggestion.duration
-        }),
-      });
+        const response = await fetch('http://localhost:3001/api/quest-suggestions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newSuggestion),
+        });
 
-      if (!response.ok) throw new Error('Failed to submit quest suggestion');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to submit quest suggestion');
+        }
 
-      // Reset form on success
-      setSuggestion({ title: '', description: '', desiredReward: 1, duration: 'none' });
+        setFormData({
+            title: '',
+            description: '',
+            desiredReward: 1,
+            duration: 'none'
+        });
     } catch (error) {
-      console.error('Error submitting quest suggestion:', error);
+        console.error('Error submitting quest suggestion:', error);
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
   };
 
@@ -56,14 +69,14 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
         <input
           type="text"
           placeholder="Quest Title"
-          value={suggestion.title}
-          onChange={(e) => setSuggestion({ ...suggestion, title: e.target.value })}
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         <textarea
           placeholder="Quest Description"
-          value={suggestion.description}
-          onChange={(e) => setSuggestion({ ...suggestion, description: e.target.value })}
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 h-24"
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -74,8 +87,8 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
             <input
               type="number"
               min="1"
-              value={suggestion.desiredReward}
-              onChange={(e) => setSuggestion({ ...suggestion, desiredReward: parseInt(e.target.value) || 1 })}
+              value={formData.desiredReward}
+              onChange={(e) => setFormData({ ...formData, desiredReward: parseInt(e.target.value) || 1 })}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
@@ -84,8 +97,8 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
               Quest Duration
             </label>
             <select
-              value={suggestion.duration}
-              onChange={(e) => setSuggestion({ ...suggestion, duration: e.target.value as QuestDuration })}
+              value={formData.duration}
+              onChange={(e) => setFormData({ ...formData, duration: e.target.value as QuestDuration })}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="none">No Time Limit</option>
@@ -96,7 +109,7 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
         </div>
         <button
           onClick={handleSubmit}
-          disabled={!suggestion.title || !suggestion.description || isSubmitting}
+          disabled={!formData.title || !formData.description || isSubmitting}
           className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send className="w-5 h-5" />

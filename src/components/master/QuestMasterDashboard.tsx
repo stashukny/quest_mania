@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wand2, Users, ScrollText, Clock, Lightbulb, History, Gift } from 'lucide-react';
 import { Quest, QuestSeeker, QuestSuggestion, PrizeRedemption, Prize } from '../../types';
 import SeekerManagement from './SeekerManagement';
@@ -46,10 +46,20 @@ export default function QuestMasterDashboard({
   onRejectSuggestion,
   onSwitchView
 }: QuestMasterDashboardProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('seekers');
-
   const pendingApprovalsCount = quests.filter(q => q.status === 'pending').length;
   const pendingSuggestionsCount = suggestions.filter(s => s.status === 'pending').length;
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    if (pendingApprovalsCount > 0) return 'approvals';
+    if (pendingSuggestionsCount > 0) return 'suggestions';
+    return 'seekers';
+  });
+
+  useEffect(() => {
+    if (pendingApprovalsCount > 0 && activeTab === 'seekers') {
+      setActiveTab('approvals');
+    }
+  }, [pendingApprovalsCount, activeTab]);
 
   const handleApproveQuest = (questId: string, seekerId: string) => {
     const quest = quests.find(q => q.id === questId);
@@ -75,6 +85,40 @@ export default function QuestMasterDashboard({
     setQuests(quests.map(q => 
       q.id === questId ? { ...q, status: 'active' } : q
     ));
+  };
+
+  const handleApproveSuggestion = async (suggestionId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/quest-suggestions/${suggestionId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to approve suggestion');
+      
+      onApproveSuggestion(suggestionId);
+    } catch (error) {
+      console.error('Error approving suggestion:', error);
+    }
+  };
+
+  const handleRejectSuggestion = async (suggestionId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/quest-suggestions/${suggestionId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to reject suggestion');
+      
+      onRejectSuggestion(suggestionId);
+    } catch (error) {
+      console.error('Error rejecting suggestion:', error);
+    }
   };
 
   return (
@@ -130,7 +174,7 @@ export default function QuestMasterDashboard({
           <div className="relative">
             <button
               onClick={() => setActiveTab('suggestions')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
+              className={`relative flex items-center gap-2 px-6 py-3 rounded-lg transition-colors ${
                 activeTab === 'suggestions'
                   ? 'bg-white text-purple-600'
                   : 'bg-purple-700 text-white hover:bg-purple-800'
@@ -138,8 +182,8 @@ export default function QuestMasterDashboard({
             >
               <Lightbulb className="w-5 h-5" />
               Quest Suggestions
+              <NotificationBadge count={pendingSuggestionsCount} />
             </button>
-            <NotificationBadge count={pendingSuggestionsCount} />
           </div>
           <button
             onClick={() => setActiveTab('history')}
@@ -182,9 +226,8 @@ export default function QuestMasterDashboard({
         {activeTab === 'suggestions' && (
           <QuestSuggestionManagement
             suggestions={suggestions}
-            seekers={seekers}
-            onApproveSuggestion={onApproveSuggestion}
-            onRejectSuggestion={onRejectSuggestion}
+            onApproveSuggestion={handleApproveSuggestion}
+            onRejectSuggestion={handleRejectSuggestion}
           />
         )}
         {activeTab === 'history' && (

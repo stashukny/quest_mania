@@ -13,7 +13,7 @@ export interface Quest {
   title: string;
   description: string;
   reward: number;
-  assignedTo: string[]; // array of seeker IDs
+  assigned_to: string;
   status: 'active' | 'pending' | 'completed' | 'in_progress';
   isTeamQuest?: boolean;
   completedAt?: string;
@@ -27,11 +27,11 @@ export interface QuestSuggestion {
   id: string;
   title: string;
   description: string;
-  suggestedBy: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-  desiredReward: number;
-  duration: QuestDuration;
+  suggested_by: string;
+  status: string;
+  created_at: string;
+  desired_reward: number;
+  duration: string;
 }
 
 export interface Prize {

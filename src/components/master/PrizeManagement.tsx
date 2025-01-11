@@ -17,10 +17,21 @@ interface EditablePrizeProps {
 function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
   const [editedPrize, setEditedPrize] = useState({
     name: prize.name,
-    description: prize.description,
-    cost: prize.cost,
-    imageUrl: prize.imageUrl || '',
+    description: prize.description || '',
+    stars_cost: prize.stars_cost || 1,
+    image_url: prize.image_url || ''
   });
+
+  const handleSave = () => {
+    onSave({
+      id: prize.id || crypto.randomUUID(),
+      name: editedPrize.name,
+      description: editedPrize.description,
+      stars_cost: editedPrize.stars_cost,
+      image_url: editedPrize.image_url,
+      available: true
+    });
+  };
 
   return (
     <div className="p-4 border rounded-lg bg-purple-50">
@@ -44,16 +55,16 @@ function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
         <div className="space-y-2">
           <input
             type="number"
-            value={editedPrize.cost}
-            onChange={(e) => setEditedPrize({ ...editedPrize, cost: parseInt(e.target.value) || 0 })}
+            value={editedPrize.stars_cost}
+            onChange={(e) => setEditedPrize({ ...editedPrize, stars_cost: parseInt(e.target.value) || 0 })}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="Star Cost"
             min="1"
           />
           <input
             type="text"
-            value={editedPrize.imageUrl}
-            onChange={(e) => setEditedPrize({ ...editedPrize, imageUrl: e.target.value })}
+            value={editedPrize.image_url}
+            onChange={(e) => setEditedPrize({ ...editedPrize, image_url: e.target.value })}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="Image URL"
           />
@@ -61,9 +72,9 @@ function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
       </div>
       <div className="flex justify-end gap-2 mt-4">
         <button
-          onClick={() => onSave({ ...prize, ...editedPrize })}
+          onClick={handleSave}
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-          disabled={!editedPrize.name || editedPrize.cost < 1}
+          disabled={!editedPrize.name || editedPrize.stars_cost < 1}
         >
           <Check className="w-4 h-4" />
           Save
@@ -83,6 +94,12 @@ function EditablePrize({ prize, onSave, onCancel }: EditablePrizeProps) {
 export default function PrizeManagement({ prizes, setPrizes, redemptions }: PrizeManagementProps) {
   const [editingPrizeId, setEditingPrizeId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [newPrize, setNewPrize] = useState({
+    name: '',
+    description: '',
+    starsCost: 1,
+    imageUrl: ''
+  });
 
   // Fetch prizes on component mount
   useEffect(() => {
@@ -99,23 +116,21 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
     fetchPrizes();
   }, [setPrizes]);
 
-  const handleAddPrize = async (prize: Omit<Prize, 'id'>) => {
-    const newPrize: Prize = {
-      ...prize,
-      id: crypto.randomUUID()
-    };
-
+  const handleSavePrize = async (prize: Prize) => {
     try {
       const response = await fetch('http://localhost:3001/api/prizes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newPrize),
+        body: JSON.stringify(prize),
       });
 
-      if (!response.ok) throw new Error('Failed to create prize');
-      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to create prize');
+      }
+
       const savedPrize = await response.json();
       setPrizes([...prizes, savedPrize]);
       setShowAddForm(false);
@@ -190,8 +205,8 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
         <div className="space-y-4">
           {showAddForm && (
             <EditablePrize
-              prize={{ id: '', name: '', description: '', cost: 1, imageUrl: '' }}
-              onSave={(prize) => handleAddPrize(prize)}
+              prize={{ id: '', name: '', description: '', stars_cost: 1, image_url: '' }}
+              onSave={handleSavePrize}
               onCancel={() => setShowAddForm(false)}
             />
           )}
@@ -207,14 +222,14 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
             ) : (
               <div key={prize.id} className="flex items-start gap-4 p-4 border rounded-lg">
                 <img
-                  src={prize.imageUrl}
+                  src={prize.image_url}
                   alt={prize.name}
                   className="w-24 h-24 object-cover rounded-lg"
                 />
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold">{prize.name}</h3>
                   <p className="text-gray-600">{prize.description}</p>
-                  <p className="text-purple-600 font-semibold mt-1">Cost: {prize.cost} stars</p>
+                  <p className="text-purple-600 font-semibold mt-1">Cost: {prize.stars_cost} stars</p>
                 </div>
                 <div className="flex gap-2">
                   <button

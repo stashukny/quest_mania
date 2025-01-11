@@ -21,14 +21,14 @@ export default function HistoryView({ quests, seekers, redemptions }: HistoryVie
         </div>
         <div className="space-y-4">
           {completedQuests.map((quest) => {
-            const seeker = seekers.find(s => s.id === quest.completedBy);
+            const seeker = seekers.find(s => s.id === quest.assigned_to);
             return (
               <div key={quest.id} className="border rounded-lg p-4">
                 <h3 className="text-lg font-semibold">{quest.title}</h3>
                 <p className="text-gray-600">{quest.description}</p>
                 <div className="mt-2 text-sm text-gray-500">
-                  <p>Completed by: {seeker?.name}</p>
-                  <p>Completed on: {new Date(quest.completedAt!).toLocaleDateString()}</p>
+                  <p>Completed by: {seeker?.name || 'Unknown'}</p>
+                  <p>Completed on: {quest.completed_at ? new Date(quest.completed_at).toLocaleDateString() : 'Unknown'}</p>
                   <p>Stars awarded: {quest.reward}</p>
                 </div>
               </div>

@@ -42,6 +42,8 @@ export default function SeekerDashboard({
             const response = await fetch(`http://localhost:3001/api/seekers/${seeker.id}/quests`);
             if (!response.ok) throw new Error('Failed to fetch quests');
             const data = await response.json();
+            console.log('Fetched quests:', data);
+            console.log('Seeker ID:', seeker.id);
             setQuests(data);
         } catch (error) {
             console.error('Error fetching quests:', error);
@@ -53,7 +55,7 @@ export default function SeekerDashboard({
   }, [seeker.id]);
 
   const assignedQuests = loading ? [] : quests.filter(quest => 
-    quest.assignedTo?.includes(seeker.id)
+    quest.assigned_to === seeker.id
   );
 
   const handleRedeemPrize = (prizeId: string, starsCost: number) => {
@@ -77,21 +79,21 @@ export default function SeekerDashboard({
         const response = await fetch(`http://localhost:3001/api/quests/${questId}/start`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ seekerId: seeker.id }),
+            body: JSON.stringify({ seekerId: seeker.id })
         });
 
-        if (!response.ok) throw new Error('Failed to start quest');
-        
-        const data = await response.json();
-        await fetchQuestDetails(questId);
-        
-        setQuests(quests.map(quest => 
-            quest.id === questId 
-                ? { ...quest, status: data.status, startedAt: data.startedAt }
-                : quest
-        ));
+        if (!response.ok) {
+            throw new Error('Failed to start quest');
+        }
+
+        const updatedQuests = quests.map(q => 
+            q.id === questId 
+                ? { ...q, status: 'in_progress', started_at: new Date().toISOString() }
+                : q
+        );
+        setQuests(updatedQuests);
     } catch (error) {
         console.error('Error starting quest:', error);
     }
@@ -104,15 +106,18 @@ export default function SeekerDashboard({
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ seekerId: seeker.id }),
+            body: JSON.stringify({ seeker_id: seeker.id })
         });
 
-        if (!response.ok) throw new Error('Failed to complete quest');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to complete quest');
+        }
         
         const data = await response.json();
         setQuests(quests.map(quest => 
             quest.id === questId 
-                ? { ...quest, status: 'pending' }
+                ? { ...quest, status: 'pending', completed_at: data.completed_at }
                 : quest
         ));
     } catch (error) {
@@ -135,6 +140,21 @@ export default function SeekerDashboard({
         console.error('Error fetching quest details:', error);
     }
   };
+
+  useEffect(() => {
+    const fetchSeekerData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3001/api/seekers/${seeker.id}`);
+            if (!response.ok) throw new Error('Failed to fetch seeker data');
+            const data = await response.json();
+            onUpdateSeeker(data);  // This will update the seeker's stars
+        } catch (error) {
+            console.error('Error fetching seeker data:', error);
+        }
+    };
+
+    fetchSeekerData();
+  }, [seeker.id]);  // Fetch when seeker ID changes
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 p-4">

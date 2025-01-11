@@ -18,20 +18,44 @@ export default function App() {
   const [currentSeeker, setCurrentSeeker] = useState<QuestSeeker | null>(null);
   const [isMasterView, setIsMasterView] = useState(false);
   const [showMasterLogin, setShowMasterLogin] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-        const [seekersData, questsData, suggestionsData] = await Promise.all([
-            api.getSeekers(),
-            api.getQuests(),
-            fetch('http://localhost:3001/api/quest-suggestions').then(res => res.json())
+    const fetchInitialData = async () => {
+      try {
+        // Fetch all data in parallel
+        const [questsResponse, seekersResponse, suggestionsResponse, prizesResponse] = await Promise.all([
+          fetch('http://localhost:3001/api/quests'),
+          fetch('http://localhost:3001/api/seekers'),
+          fetch('http://localhost:3001/api/quest-suggestions'),
+          fetch('http://localhost:3001/api/prizes')
         ]);
-        setSeekers(seekersData);
+
+        if (!questsResponse.ok) throw new Error('Failed to fetch quests');
+        if (!seekersResponse.ok) throw new Error('Failed to fetch seekers');
+        if (!suggestionsResponse.ok) throw new Error('Failed to fetch suggestions');
+        if (!prizesResponse.ok) throw new Error('Failed to fetch prizes');
+
+        const [questsData, seekersData, suggestionsData, prizesData] = await Promise.all([
+          questsResponse.json(),
+          seekersResponse.json(),
+          suggestionsResponse.json(),
+          prizesResponse.json()
+        ]);
+
         setQuests(questsData);
+        setSeekers(seekersData);
         setSuggestions(suggestionsData);
+        setPrizes(prizesData);
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchData();
-}, []);
+
+    fetchInitialData();
+  }, []);
 
   const handleSeekerLogin = (seeker: QuestSeeker) => {
     setCurrentSeeker(seeker);
@@ -104,6 +128,15 @@ export default function App() {
     return certificateId;
   };
 
+  const handleMasterLogin = (pin: string) => {
+    if (pin === MASTER_PIN) {
+      fetchInitialData();  // Fetch all data when master logs in
+      setView('master');
+    } else {
+      alert('Invalid PIN');
+    }
+  };
+
   if (showMasterLogin) {
     return (
       <MasterLogin
@@ -113,6 +146,14 @@ export default function App() {
         }}
         onBack={() => setShowMasterLogin(false)}
       />
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
     );
   }
 
