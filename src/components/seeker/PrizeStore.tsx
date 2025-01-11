@@ -7,8 +7,21 @@ interface PrizeStoreProps {
   onRedeemPrize: (prizeId: string, starsCost: number) => void;
 }
 
+// Add this function to generate a certificate ID
+const generateCertificateId = () => {
+  // Generate a random 8-character string of numbers and uppercase letters
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
   const [prizes, setPrizes] = useState<Prize[]>([]);
+  const [certificateId, setCertificateId] = useState<string | null>(null);
+  const [showCertificate, setShowCertificate] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/prizes')
@@ -16,6 +29,43 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
       .then(data => setPrizes(data))
       .catch(err => console.error('Error fetching prizes:', err));
   }, []);
+
+  const handleRedeem = async (prize: Prize) => {
+    if (!seeker || seeker.stars < prize.stars_cost) return;
+
+    const certificateId = generateCertificateId();
+    const redemption = {
+      id: crypto.randomUUID(),
+      prize_id: prize.id,
+      seeker_id: seeker.id,
+      redeemed_at: new Date().toISOString(),
+      certificate_id: certificateId,
+      stars_cost: prize.stars_cost
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/api/prize-redemptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(redemption),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to redeem prize');
+      }
+
+      // Update local state
+      onRedeemPrize(prize.id, prize.stars_cost);
+      
+      // Show certificate
+      setCertificateId(certificateId);
+      setShowCertificate(true);
+    } catch (error) {
+      console.error('Error redeeming prize:', error);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-xl p-6">
@@ -49,7 +99,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
                   <span>{prize.stars_cost} stars</span>
                 </div>
                 <button
-                  onClick={() => onRedeemPrize(prize.id, prize.stars_cost)}
+                  onClick={() => handleRedeem(prize)}
                   disabled={seeker.stars < prize.stars_cost}
                   className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
                     seeker.stars >= prize.stars_cost

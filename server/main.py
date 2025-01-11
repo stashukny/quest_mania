@@ -99,6 +99,14 @@ class QuestCompleteRequest(BaseModel):
 class QuestApproveRequest(BaseModel):
     seekerId: str
 
+class PrizeRedemption(BaseModel):
+    id: str
+    prize_id: str
+    seeker_id: str
+    redeemed_at: str
+    certificate_id: str
+    stars_cost: int
+
 # Initial routes
 @app.get("/api/seekers")
 async def get_seekers():
@@ -529,19 +537,107 @@ async def get_seeker(seeker_id: str):
             if not seeker:
                 raise HTTPException(status_code=404, detail="Seeker not found")
 
-            # Get total stars from completed quests
-            completed_stars = await conn.fetchval('''
-                SELECT COALESCE(SUM(reward), 0)
-                FROM quests 
-                WHERE assigned_to = $1 
-                AND status = 'completed'
+            # Get total stars from completed quests and subtract redeemed stars
+            available_stars = await conn.fetchval('''
+                SELECT 
+                    COALESCE(
+                        (SELECT SUM(reward) FROM quests WHERE assigned_to = $1 AND status = 'completed'),
+                        0
+                    ) - 
+                    COALESCE(
+                        (SELECT SUM(stars_cost) FROM prize_redemptions WHERE seeker_id = $1),
+                        0
+                    )
             ''', seeker_id)
 
             return {
                 **dict(seeker),
-                "stars": completed_stars
+                "stars": available_stars
             }
         except Exception as e:
             print(f"Error fetching seeker: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/prize-redemptions")
+async def create_prize_redemption(redemption: PrizeRedemption):
+    async with app.state.pool.acquire() as conn:
+        try:
+            # Convert ISO string to datetime object
+            redeemed_at = datetime.fromisoformat(redemption.redeemed_at.replace('Z', '+00:00'))
+            
+            # Insert the redemption
+            await conn.execute('''
+                INSERT INTO prize_redemptions 
+                (id, prize_id, seeker_id, redeemed_at, certificate_id, stars_cost)
+                VALUES ($1, $2, $3, $4, $5, $6)
+            ''', redemption.id, redemption.prize_id, redemption.seeker_id,
+                redeemed_at,  # Use the datetime object instead of the string
+                redemption.certificate_id, redemption.stars_cost)
+
+            # Update seeker's stars
+            await conn.execute('''
+                UPDATE seekers 
+                SET stars = stars - $1 
+                WHERE id = $2
+            ''', redemption.stars_cost, redemption.seeker_id)
+
+            return {
+                **redemption.dict(),
+                "redeemed_at": redeemed_at.isoformat()  # Convert back to string for response
+            }
+        except Exception as e:
+            print(f"Error creating prize redemption: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/seekers/{seeker_id}/redemptions")
+async def get_seeker_redemptions(seeker_id: str):
+    async with app.state.pool.acquire() as conn:
+        try:
+            # Add debug logging
+            print(f"Fetching redemptions for seeker: {seeker_id}")
+            
+            rows = await conn.fetch('''
+                SELECT 
+                    pr.id,
+                    pr.certificate_id,
+                    pr.redeemed_at,
+                    pr.stars_cost,
+                    p.name as prize_name
+                FROM prize_redemptions pr
+                JOIN prizes p ON pr.prize_id = p.id
+                WHERE pr.seeker_id = $1
+                ORDER BY pr.redeemed_at DESC
+            ''', seeker_id)
+            
+            # Add debug logging
+            print(f"Found {len(rows)} redemptions")
+            for row in rows:
+                print(f"Redemption: {dict(row)}")
+            
+            return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Error fetching seeker redemptions: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/prize-redemptions")
+async def get_all_redemptions():
+    async with app.state.pool.acquire() as conn:
+        try:
+            rows = await conn.fetch('''
+                SELECT 
+                    pr.id,
+                    pr.certificate_id,
+                    pr.redeemed_at,
+                    pr.stars_cost,
+                    p.name as prize_name,
+                    s.name as seeker_name
+                FROM prize_redemptions pr
+                JOIN prizes p ON pr.prize_id = p.id
+                JOIN seekers s ON pr.seeker_id = s.id
+                ORDER BY pr.redeemed_at DESC
+            ''')
+            return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Error fetching redemptions: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
