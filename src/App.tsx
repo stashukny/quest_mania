@@ -113,19 +113,38 @@ export default function App() {
     ));
   };
 
-  const handleRedeemPrize = (prizeId: string, starsCost: number): string | null => {
-    const certificateId = generateCertificateId();
-    const redemption: PrizeRedemption = {
-      id: crypto.randomUUID(),
-      prizeId,
-      seekerId: currentSeeker!.id,
-      redeemedAt: new Date().toISOString(),
-      certificateId,
-      starsCost
-    };
+  const handlePrizeRedeem = async (prizeId: string, starsCost: number) => {
+    if (!currentSeeker) return;
 
-    setRedemptions([...redemptions, redemption]);
-    return certificateId;
+    try {
+      // Update seeker's stars immediately for better UX
+      setCurrentSeeker(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          stars: prev.stars - starsCost
+        };
+      });
+
+      // Fetch the updated seeker data to ensure consistency
+      const response = await fetch(`http://localhost:3001/api/seekers/${currentSeeker.id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch updated seeker data');
+      }
+
+      const updatedSeeker = await response.json();
+      setCurrentSeeker(updatedSeeker);
+    } catch (error) {
+      console.error('Error updating seeker stars:', error);
+      // Optionally, revert the optimistic update if the API call fails
+      setCurrentSeeker(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          stars: prev.stars + starsCost
+        };
+      });
+    }
   };
 
   const handleMasterLogin = (pin: string) => {
@@ -197,7 +216,7 @@ export default function App() {
         ));
         setCurrentSeeker(updatedSeeker);
       }}
-      onRedeemPrize={handleRedeemPrize}
+      onRedeemPrize={handlePrizeRedeem}
     />
   );
 }
