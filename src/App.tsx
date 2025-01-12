@@ -19,6 +19,7 @@ export default function App() {
   const [isMasterView, setIsMasterView] = useState(false);
   const [showMasterLogin, setShowMasterLogin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [shouldRefetchQuests, setShouldRefetchQuests] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -43,6 +44,7 @@ export default function App() {
           prizesResponse.json()
         ]);
 
+        console.log('Fetched quests:', questsData);  // Debug log
         setQuests(questsData);
         setSeekers(seekersData);
         setSuggestions(suggestionsData);
@@ -51,22 +53,36 @@ export default function App() {
         console.error('Error fetching initial data:', error);
       } finally {
         setLoading(false);
+        setShouldRefetchQuests(false);  // Reset the refetch trigger
       }
     };
 
     fetchInitialData();
-  }, []);
+  }, [shouldRefetchQuests]);  // Add shouldRefetchQuests as a dependency
 
   const handleSeekerLogin = (seeker: QuestSeeker) => {
+    localStorage.setItem('currentSeekerId', seeker.id);
     setCurrentSeeker(seeker);
+    setShouldRefetchQuests(true);  // Trigger a refetch when logging in
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('currentSeekerId');
+    setCurrentSeeker(null);
   };
 
   const handleQuestComplete = async (questId: string) => {
-    const updated = await api.updateQuestStatus(questId, 'pending');
-    setQuests(quests.map(quest => 
-        quest.id === questId ? updated : quest
-    ));
-};
+    if (!currentSeeker) return;
+    
+    try {
+      const updated = await api.updateQuestStatus(questId, 'pending');
+      setQuests(quests.map(quest => 
+        quest.id === questId ? { ...quest, status: 'pending' } : quest
+      ));
+    } catch (error) {
+      console.error('Error completing quest:', error);
+    }
+  };
 
   const handleQuestStart = (questId: string) => {
     setQuests(quests.map(quest => 
@@ -207,7 +223,8 @@ export default function App() {
   return (
     <SeekerDashboard
       seeker={currentSeeker}
-      onLogout={() => setCurrentSeeker(null)}
+      quests={quests}
+      onLogout={handleLogout}
       onQuestComplete={handleQuestComplete}
       onQuestStart={handleQuestStart}
       onUpdateSeeker={(updatedSeeker) => {

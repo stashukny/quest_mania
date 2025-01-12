@@ -11,16 +11,13 @@ export type QuestDuration = 'daily' | 'weekly' | 'none';
 export interface Quest {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   reward: number;
+  status: string;
+  duration: string;
   assigned_to: string;
-  status: 'active' | 'pending' | 'completed' | 'in_progress';
-  isTeamQuest?: boolean;
-  completedAt?: string;
-  completedBy?: string;
-  duration: QuestDuration;
-  startedAt?: string;
-  endDate?: string;
+  started_at?: string;
+  completed_at?: string;
 }
 
 export interface QuestSuggestion {

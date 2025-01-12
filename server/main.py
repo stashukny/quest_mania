@@ -130,8 +130,14 @@ async def create_seeker(seeker: Seeker):
 @app.get("/api/quests")
 async def get_quests():
     async with app.state.pool.acquire() as conn:
-        rows = await conn.fetch('SELECT * FROM quests')
-        return [dict(row) for row in rows]
+        try:
+            rows = await conn.fetch('SELECT * FROM quests')
+            quests = [dict(row) for row in rows]
+            print(f"Returning quests: {quests}")  # Debug log
+            return quests
+        except Exception as e:
+            print(f"Error fetching quests: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/quests")
 async def create_quest(quest: Quest):
@@ -265,21 +271,20 @@ async def get_quest_suggestions():
 async def create_quest_suggestion(suggestion: QuestSuggestion):
     async with app.state.pool.acquire() as conn:
         try:
-            # Create a new datetime object for now
-            now = datetime.utcnow()
+            # Parse the created_at string into a datetime object
+            created_at = datetime.fromisoformat(suggestion.created_at.replace('Z', '+00:00')) if suggestion.created_at else datetime.utcnow()
             
             await conn.execute('''
                 INSERT INTO quest_suggestions 
                 (id, title, description, suggested_by, status, created_at, desired_reward, duration)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            ''', suggestion.id, suggestion.title, suggestion.description,
-                suggestion.suggested_by, 'pending', now,  # Use datetime object directly
+            ''', suggestion.id, suggestion.title, suggestion.description, 
+                suggestion.suggested_by, suggestion.status, created_at,  # Use the parsed datetime
                 suggestion.desired_reward, suggestion.duration)
             
             return {
                 **suggestion.dict(),
-                "status": "pending",
-                "created_at": now.isoformat()  # Convert to string only for response
+                "created_at": created_at.isoformat()  # Convert back to ISO string for response
             }
         except Exception as e:
             print(f"Error creating quest suggestion: {str(e)}")

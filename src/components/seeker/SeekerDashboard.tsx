@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, Star, Gift, LogOut } from 'lucide-react';
-import { QuestSeeker, Quest, PrizeRedemption } from '../../types';
+import { QuestSeeker, Quest, PrizeRedemption } from '../../types/';
 import QuestList from './QuestList';
 import QuestSuggestionForm from './QuestSuggestion';
 import PrizeStore from './PrizeStore';
@@ -17,6 +17,7 @@ interface SeekerDashboardProps {
   seeker: QuestSeeker;
   quests: Quest[];
   onQuestComplete: (questId: string) => void;
+  onQuestStart: (questId: string) => void;
   onRedeemPrize: (prizeId: string, starsCost: number) => void;
   onLogout: () => void;
 }
@@ -25,6 +26,7 @@ export default function SeekerDashboard({
   seeker, 
   quests = [],
   onQuestComplete,
+  onQuestStart,
   onRedeemPrize,
   onLogout 
 }: SeekerDashboardProps) {
@@ -47,6 +49,14 @@ export default function SeekerDashboard({
     fetchRedemptions();
   }, [seeker.id, seeker.stars]);
 
+  console.log('All quests:', quests);
+  console.log('Seeker ID:', seeker.id);
+  const filteredQuests = (quests || []).filter(q => 
+    q.assigned_to === seeker.id && 
+    ['active', 'in_progress', 'pending'].includes(q.status)
+  );
+  console.log('Filtered quests:', filteredQuests);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-500 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -54,9 +64,9 @@ export default function SeekerDashboard({
         <div className="bg-white rounded-lg shadow-xl p-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              {seeker.avatar_url && (
+              {seeker.avatarUrl && (
                 <img
-                  src={seeker.avatar_url}
+                  src={seeker.avatarUrl}
                   alt={seeker.name}
                   className="w-16 h-16 rounded-full"
                 />
@@ -70,7 +80,10 @@ export default function SeekerDashboard({
               </div>
             </div>
             <button
-              onClick={onLogout}
+              onClick={() => {
+                localStorage.removeItem('currentSeekerId');
+                onLogout();
+              }}
               className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
               <LogOut className="w-5 h-5" />
@@ -81,8 +94,9 @@ export default function SeekerDashboard({
 
         {/* Active Quests */}
         <QuestList 
-          quests={(quests || []).filter(q => q.assigned_to === seeker.id)} 
+          quests={filteredQuests}
           onQuestComplete={onQuestComplete}
+          onQuestStart={onQuestStart}
         />
 
         {/* Quest Suggestion Form */}
