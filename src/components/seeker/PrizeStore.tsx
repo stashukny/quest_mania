@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Sparkles, Gift } from 'lucide-react';
-import { QuestSeeker, Prize } from '../../types';
+import { QuestSeeker, Prize } from '../../types/';
 import RedemptionCertificate from './RedemptionCertificate';
 
 interface PrizeStoreProps {

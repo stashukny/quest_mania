@@ -3,7 +3,7 @@ interface QuestCompletion {
     questId: string;
     seekerId: string;
     status: 'pending' | 'completed' | 'rejected';
-    completedAt: string;
+    completed_at: string;
 } 
 
 interface Prize {

@@ -3,11 +3,12 @@ import QuestMasterDashboard from './components/master/QuestMasterDashboard';
 import SeekerLogin from './components/seeker/SeekerLogin';
 import SeekerDashboard from './components/seeker/SeekerDashboard';
 import MasterLogin from './components/master/MasterLogin';
-import { QuestSeeker, Quest, QuestSuggestion, PrizeRedemption } from './types';
+import { QuestSeeker, Quest, QuestSuggestion, PrizeRedemption } from './types/';
 import { generateCertificateId } from './utils/certificates';
 import { DEFAULT_PRIZES } from './constants/prizes';
 import { api } from './api';
 
+const MASTER_PIN = '1234';
 
 export default function App() {
   const [seekers, setSeekers] = useState<QuestSeeker[]>([]);
@@ -89,7 +90,7 @@ export default function App() {
       quest.id === questId ? { 
         ...quest, 
         status: 'in_progress',
-        startedAt: new Date().toISOString()
+        started_at: new Date().toISOString()
       } : quest
     ));
   };
@@ -163,14 +164,14 @@ export default function App() {
     }
   };
 
-  const handleMasterLogin = (pin: string) => {
-    if (pin === MASTER_PIN) {
-      fetchInitialData();  // Fetch all data when master logs in
-      setView('master');
-    } else {
-      alert('Invalid PIN');
-    }
-  };
+  // const handleMasterLogin = (pin: string) => {
+  //   if (pin === MASTER_PIN) {
+  //     fetchInitialData();  // Fetch all data when master logs in
+  //     setView('master');
+  //   } else {
+  //     alert('Invalid PIN');
+  //   }
+  // };
 
   if (showMasterLogin) {
     return (
@@ -227,12 +228,6 @@ export default function App() {
       onLogout={handleLogout}
       onQuestComplete={handleQuestComplete}
       onQuestStart={handleQuestStart}
-      onUpdateSeeker={(updatedSeeker) => {
-        setSeekers(seekers.map(s => 
-          s.id === updatedSeeker.id ? updatedSeeker : s
-        ));
-        setCurrentSeeker(updatedSeeker);
-      }}
       onRedeemPrize={handlePrizeRedeem}
     />
   );

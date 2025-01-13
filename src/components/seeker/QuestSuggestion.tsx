@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Send } from 'lucide-react';
-import type { QuestSuggestion as QuestSuggestionType, QuestDuration } from '../../types';
+import type { QuestSuggestion as QuestSuggestionType, QuestDuration } from '../../types/';
 
 interface QuestSuggestionProps {
   seekerId: string;

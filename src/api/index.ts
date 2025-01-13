@@ -1,4 +1,4 @@
-import { Quest } from "../types";
+import { Quest } from "../types/";
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
@@ -27,9 +27,9 @@ export const api = {
         // Map snake_case to camelCase
         return data.map((quest: any) => ({
             ...quest,
-            startedAt: quest.started_at,
-            completedAt: quest.completed_at,
-            assignedTo: quest.assigned_to
+            started_at: quest.started_at,
+            completed_at: quest.completed_at,
+            assigned_to: quest.assigned_to
         }));
     },
 

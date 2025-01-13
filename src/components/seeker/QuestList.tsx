@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, CheckCircle, PlayCircle, Clock, Trophy } from 'lucide-react';
-import { Quest } from '../../types';
+import { Quest } from '../../types/';
 
 interface QuestListProps {
   quests: Quest[];
@@ -41,7 +41,7 @@ function canCompleteQuest(quest: Quest): boolean {
 
   const now = new Date();
   const endDate = getQuestEndDate(quest.started_at, quest.duration);
-  return now >= endDate;
+  return endDate ? now >= endDate : false;
 }
 
 export default function QuestList({ quests, onQuestComplete, onQuestStart }: QuestListProps) {

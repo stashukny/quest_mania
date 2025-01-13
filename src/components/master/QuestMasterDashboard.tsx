@@ -71,7 +71,7 @@ export default function QuestMasterDashboard({
       q.id === questId ? { 
         ...q, 
         status: 'completed',
-        completedAt: new Date().toISOString(),
+        completed_at: new Date().toISOString(),
         completedBy: seekerId
       } : q
     ));

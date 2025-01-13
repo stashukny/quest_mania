@@ -13,8 +13,8 @@ CREATE TABLE quests (
     reward INTEGER,
     status TEXT,
     duration INTEGER,
-    startedAt TEXT,
-    assignedTo TEXT
+    started_at TEXT,
+    assigned_to TEXT
 );
 
 CREATE TABLE quest_suggestions (
@@ -52,7 +52,7 @@ CREATE TABLE quest_completions (
     questId TEXT NOT NULL,
     seekerId TEXT NOT NULL,
     status TEXT NOT NULL, -- 'pending', 'completed', 'rejected'
-    completedAt TEXT,
+    completed_at TEXT,
     FOREIGN KEY(questId) REFERENCES quests(id),
     FOREIGN KEY(seekerId) REFERENCES seekers(id)
 );

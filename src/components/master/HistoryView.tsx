@@ -37,7 +37,7 @@ export default function HistoryView({ quests, seekers }: HistoryViewProps) {
       .filter(q => q.status === 'completed')
       .map(quest => ({
         ...quest,
-        seeker_name: seekers.find(s => s.id === quest.assignedTo)?.name || 'Unknown Seeker'
+        seeker_name: seekers.find(s => s.id === quest.assigned_to)?.name || 'Unknown Seeker'
       }));
     setCompletedQuests(completed);
   }, [quests, seekers]);
@@ -61,7 +61,7 @@ export default function HistoryView({ quests, seekers }: HistoryViewProps) {
                     Completed by: {quest.seeker_name}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Completed on: {new Date(quest.completedAt!).toLocaleDateString()}
+                    Completed on: {new Date(quest.completed_at!).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 bg-purple-100 text-purple-600 px-3 py-1 rounded-full">

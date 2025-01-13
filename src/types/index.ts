@@ -15,9 +15,9 @@ export interface Quest {
   reward: number;
   status: string;
   duration: string;
-  assignedTo: string;
-  startedAt?: string;
-  completedAt?: string;
+  assigned_to: string;
+  started_at?: string;
+  completed_at?: string;
 }
 
 export interface QuestSuggestion {

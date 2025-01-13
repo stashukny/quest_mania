@@ -20,7 +20,7 @@ function EditableQuest({ quest, seekers, onSave, onCancel }: EditableQuestProps)
     title: quest.title,
     description: quest.description,
     reward: quest.reward,
-    assignedTo: quest.assignedTo,
+    assigned_to: quest.assigned_to,
     duration: quest.duration,
   });
 
@@ -72,8 +72,8 @@ function EditableQuest({ quest, seekers, onSave, onCancel }: EditableQuestProps)
               Assign To
             </label>
             <select
-              value={editedQuest.assignedTo}
-              onChange={(e) => setEditedQuest({ ...editedQuest, assignedTo: e.target.value })}
+              value={editedQuest.assigned_to}
+              onChange={(e) => setEditedQuest({ ...editedQuest, assigned_to: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               {seekers.map((seeker) => (
@@ -111,7 +111,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     title: '',
     description: '',
     reward: 1,
-    assignedTo: '',
+    assigned_to: '',
     duration: 'none' as QuestDuration,
   });
   const [editingQuestId, setEditingQuestId] = useState<string | null>(null);
@@ -124,9 +124,9 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
         // Map the snake_case to camelCase
         const mappedQuests = data.map((quest: any) => ({
           ...quest,
-          assignedTo: quest.assigned_to,
-          startedAt: quest.started_at,
-          completedAt: quest.completed_at
+          assigned_to: quest.assigned_to,
+          started_at: quest.started_at,
+          completed_at: quest.completed_at
         }));
         setQuests(mappedQuests);
       })
@@ -134,7 +134,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
   }, [setQuests]);
 
   const handleCreateQuest = async () => {
-    if (!newQuest.title || !newQuest.description || !newQuest.assignedTo) return;
+    if (!newQuest.title || !newQuest.description || !newQuest.assigned_to) return;
 
     try {
       const response = await fetch('http://localhost:3001/api/quests', {
@@ -147,7 +147,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
           title: newQuest.title,
           description: newQuest.description,
           reward: newQuest.reward,
-          assigned_to: newQuest.assignedTo,
+          assigned_to: newQuest.assigned_to,
           status: 'active',
           duration: newQuest.duration,
           started_at: undefined,
@@ -164,16 +164,16 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
       // Map the response to frontend format
       const mappedQuest = {
         ...savedQuest,
-        assignedTo: savedQuest.assigned_to,
-        startedAt: savedQuest.started_at,
-        completedAt: savedQuest.completed_at
+        assigned_to: savedQuest.assigned_to,
+        started_at: savedQuest.started_at,
+        completed_at: savedQuest.completed_at
       };
       setQuests([...quests, mappedQuest]);
       setNewQuest({
         title: '',
         description: '',
         reward: 1,
-        assignedTo: '',
+        assigned_to: '',
         duration: 'none',
       });
     } catch (error) {
@@ -190,7 +190,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
         },
         body: JSON.stringify({
           ...updatedQuest,
-          assigned_to: updatedQuest.assignedTo,
+          assigned_to: updatedQuest.assigned_to,
           status: updatedQuest.status || 'active'
         }),
       });
@@ -203,9 +203,9 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
       // Map the response to frontend format
       const mappedQuest = {
         ...savedQuest,
-        assignedTo: savedQuest.assigned_to,
-        startedAt: savedQuest.started_at,
-        completedAt: savedQuest.completed_at
+        assigned_to: savedQuest.assigned_to,
+        started_at: savedQuest.started_at,
+        completed_at: savedQuest.completed_at
       };
       setQuests(quests.map(q => q.id === mappedQuest.id ? mappedQuest : q));
       setEditingQuestId(null);
@@ -293,8 +293,8 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
                 Assign To
               </label>
               <select
-                value={newQuest.assignedTo}
-                onChange={(e) => setNewQuest({ ...newQuest, assignedTo: e.target.value })}
+                value={newQuest.assigned_to}
+                onChange={(e) => setNewQuest({ ...newQuest, assigned_to: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
                 <option value="">Select a seeker</option>
@@ -339,9 +339,9 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
                         {quest.duration === 'none' ? 'No Time Limit' : 
                          quest.duration === 'daily' ? 'Daily Quest' : 'Weekly Quest'}
                       </span>
-                      {quest.startedAt && (
+                      {quest.started_at && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Started: {new Date(quest.startedAt).toLocaleDateString()}
+                          Started: {new Date(quest.started_at).toLocaleDateString()}
                         </span>
                       )}
                     </div>
@@ -366,7 +366,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
                   </div>
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
-                  Assigned to: {seekers.find(s => s.id === quest.assignedTo)?.name || 'Unknown'}
+                  Assigned to: {seekers.find(s => s.id === quest.assigned_to)?.name || 'Unknown'}
                 </div>
               </div>
             )

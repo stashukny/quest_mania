@@ -1,5 +1,5 @@
 import React from 'react';
-import { QuestSeeker, Prize } from '../../types';
+import { QuestSeeker, Prize } from '../../types/';
 import { Check } from 'lucide-react';
 
 interface RedemptionCertificateProps {

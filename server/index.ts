@@ -15,9 +15,9 @@ interface DbQuest {
     reward: number;
     status: string;
     duration: string;
-    assignedTo: string;
-    startedAt?: string;
-    completedAt?: string;
+    assigned_to: string;
+    started_at?: string;
+    completed_at?: string;
 }
 
 interface DbQuestSuggestion {
@@ -103,23 +103,23 @@ app.get('/api/quests', (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
-        // Parse the assignedTo JSON string back to an array
+        // Parse the assigned_to JSON string back to an array
         const parsedQuests = quests.map((quest: any) => ({
             ...quest,
-            assignedTo: quest.assignedTo ? JSON.parse(quest.assignedTo) : []
+            assigned_to: quest.assigned_to ? JSON.parse(quest.assigned_to) : []
         }));
         res.json(parsedQuests);
     });
 });
 
 app.post('/api/quests', (req, res) => {
-    const { id, title, description, reward, status, duration, assignedTo } = req.body;
-    // Stringify the assignedTo array before saving to database
-    const assignedToJson = JSON.stringify(assignedTo);
+    const { id, title, description, reward, status, duration, assigned_to } = req.body;
+    // Stringify the assigned_to array before saving to database
+    const assigned_toJson = JSON.stringify(assigned_to);
     
     db.run(
-        'INSERT INTO quests (id, title, description, reward, status, duration, assignedTo) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [id, title, description, reward, status, duration, assignedToJson],
+        'INSERT INTO quests (id, title, description, reward, status, duration, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [id, title, description, reward, status, duration, assigned_toJson],
         (err) => {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -127,20 +127,20 @@ app.post('/api/quests', (req, res) => {
             }
             res.json({
                 ...req.body,
-                assignedTo: assignedTo // Send back the original array
+                assigned_to: assigned_to // Send back the original array
             });
         }
     );
 });
 app.put('/api/quests/:id', (req, res) => {
     const questId = req.params.id;
-    const { title, description, reward, status, duration, assignedTo } = req.body;
-    // Stringify the assignedTo array
-    const assignedToJson = JSON.stringify(assignedTo);
+    const { title, description, reward, status, duration, assigned_to } = req.body;
+    // Stringify the assigned_to array
+    const assigned_toJson = JSON.stringify(assigned_to);
     
     db.run(
-        'UPDATE quests SET title = ?, description = ?, reward = ?, status = ?, duration = ?, assignedTo = ? WHERE id = ?',
-        [title, description, reward, status, duration, assignedToJson, questId],
+        'UPDATE quests SET title = ?, description = ?, reward = ?, status = ?, duration = ?, assigned_to = ? WHERE id = ?',
+        [title, description, reward, status, duration, assigned_toJson, questId],
         (err) => {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -149,7 +149,7 @@ app.put('/api/quests/:id', (req, res) => {
             res.json({
                 id: questId,
                 ...req.body,
-                assignedTo: assignedTo
+                assigned_to: assigned_to
             });
         }
     );
@@ -343,11 +343,11 @@ app.delete('/api/quests/:id', (req, res) => {
 // PUT endpoint for quests (full update)
 app.put('/api/quests/:id', (req, res) => {
     const questId = req.params.id;
-    const { title, description, reward, status, duration, assignedTo, isTeamQuest } = req.body;
+    const { title, description, reward, status, duration, assigned_to, isTeamQuest } = req.body;
     
     db.run(
-        'UPDATE quests SET title = ?, description = ?, reward = ?, status = ?, duration = ?, assignedTo = ?, isTeamQuest = ? WHERE id = ?',
-        [title, description, reward, status, duration, assignedTo, isTeamQuest, questId],
+        'UPDATE quests SET title = ?, description = ?, reward = ?, status = ?, duration = ?, assigned_to = ?, isTeamQuest = ? WHERE id = ?',
+        [title, description, reward, status, duration, assigned_to, isTeamQuest, questId],
         (err) => {
             if (err) {
                 res.status(500).json({ error: err.message });
@@ -365,7 +365,7 @@ app.post('/api/quests/:id/start', (req, res) => {
     const now = new Date().toISOString();
 
     db.run(
-        'UPDATE quests SET status = ?, startedAt = ? WHERE id = ?',
+        'UPDATE quests SET status = ?, started_at = ? WHERE id = ?',
         ['in_progress', now, questId],
         (err) => {
             if (err) {
@@ -374,7 +374,7 @@ app.post('/api/quests/:id/start', (req, res) => {
             }
             res.json({ 
                 status: 'in_progress',
-                startedAt: now 
+                started_at: now 
             });
         }
     );
@@ -402,7 +402,7 @@ app.post('/api/quests/:id/complete-request', (req, res) => {
             }
 
             db.run(
-                'INSERT INTO quest_completions (id, questId, seekerId, status, completedAt) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO quest_completions (id, questId, seekerId, status, completed_at) VALUES (?, ?, ?, ?, ?)',
                 [completionId, questId, seekerId, 'pending', now],
                 (err) => {
                     if (err) {
@@ -412,7 +412,7 @@ app.post('/api/quests/:id/complete-request', (req, res) => {
                     res.json({ 
                         id: completionId, 
                         status: 'pending', 
-                        completedAt: now 
+                        completed_at: now 
                     });
                 }
             );
@@ -435,7 +435,7 @@ app.get('/api/seekers/:id/quests', (req, res) => {
             
             const parsedQuests = quests.map(quest => ({
                 ...quest,
-                assignedTo: JSON.parse(quest.assignedTo || '[]')
+                assigned_to: JSON.parse(quest.assigned_to || '[]')
             }));
             
             res.json(parsedQuests);
@@ -450,7 +450,7 @@ app.post('/api/quests/:id/complete', (req, res) => {
     
     // Update quest status
     db.run(
-        'UPDATE quests SET status = ?, completedAt = ? WHERE id = ?',
+        'UPDATE quests SET status = ?, completed_at = ? WHERE id = ?',
         ['pending', now, questId],
         (err) => {
             if (err) {
@@ -459,7 +459,7 @@ app.post('/api/quests/:id/complete', (req, res) => {
             }
             res.json({ 
                 status: 'pending',
-                completedAt: now 
+                completed_at: now 
             });
         }
     );
@@ -478,8 +478,8 @@ app.get('/api/quests/:id', (req, res) => {
             return;
         }
 
-        // Parse assignedTo field
-        quest.assignedTo = JSON.parse(quest.assignedTo || '[]');
+        // Parse assigned_to field
+        quest.assigned_to = JSON.parse(quest.assigned_to || '[]');
         res.json(quest);
     });
 });
@@ -495,7 +495,7 @@ app.post('/api/quests/:id/approve', (req, res) => {
 
         // Update quest status to completed
         db.run(
-            'UPDATE quests SET status = ?, completedAt = ? WHERE id = ?',
+            'UPDATE quests SET status = ?, completed_at = ? WHERE id = ?',
             ['completed', now, questId],
             (err) => {
                 if (err) {
@@ -522,7 +522,7 @@ app.post('/api/quests/:id/approve', (req, res) => {
                             db.run('COMMIT');
                             res.json({ 
                                 status: 'completed',
-                                completedAt: now,
+                                completed_at: now,
                                 reward: quest.reward
                             });
                         }
@@ -538,7 +538,7 @@ app.post('/api/quests/:id/reject', (req, res) => {
     
     // Set quest back to in_progress status
     db.run(
-        'UPDATE quests SET status = ?, completedAt = NULL WHERE id = ?',
+        'UPDATE quests SET status = ?, completed_at = NULL WHERE id = ?',
         ['in_progress', questId],
         (err) => {
             if (err) {
@@ -570,7 +570,7 @@ app.post('/api/quest-suggestions/:id/approve', (req, res) => {
             const questId = crypto.randomUUID();
             // Create new quest from suggestion
             db.run(
-                'INSERT INTO quests (id, title, description, reward, status, duration, assignedTo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                'INSERT INTO quests (id, title, description, reward, status, duration, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?)',
                 [questId, suggestion.title, suggestion.description, suggestion.desiredReward, 'active', suggestion.duration, JSON.stringify([suggestion.suggestedBy])],
                 (err) => {
                     if (err) {
@@ -598,7 +598,7 @@ app.post('/api/quest-suggestions/:id/approve', (req, res) => {
                                     reward: suggestion.desiredReward,
                                     status: 'active',
                                     duration: suggestion.duration,
-                                    assignedTo: [suggestion.suggestedBy]
+                                    assigned_to: [suggestion.suggestedBy]
                                 }
                             });
                         }
