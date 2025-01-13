@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Lightbulb, Check, X } from 'lucide-react';
-import { QuestSuggestion } from '../../types';
+import { QuestSuggestion } from '../../types/';
 
 interface QuestSuggestionManagementProps {
   suggestions: QuestSuggestion[];

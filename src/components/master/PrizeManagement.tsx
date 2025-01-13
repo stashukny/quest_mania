@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Gift, Pencil, Trash2, X, Check, Plus } from 'lucide-react';
-import { Prize, PrizeRedemption } from '../../types';
+import { Prize, PrizeRedemption } from '../../types/';
 
 interface PrizeManagementProps {
   prizes: Prize[];
@@ -205,7 +205,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
         <div className="space-y-4">
           {showAddForm && (
             <EditablePrize
-              prize={{ id: '', name: '', description: '', stars_cost: 1, image_url: '' }}
+              prize={{ id: '', name: '', description: '', stars_cost: 1, image_url: '', available: true }}
               onSave={handleSavePrize}
               onCancel={() => setShowAddForm(false)}
             />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, Clock, Sparkles } from 'lucide-react';
-import { Quest, QuestSeeker } from '../../types';
+import { Quest, QuestSeeker } from '../../types/';
 
 interface QuestStatusManagementProps {
   quests: Quest[];
@@ -96,7 +96,7 @@ export default function QuestStatusManagement({
       </div>
       <div className="space-y-4">
         {pendingQuests.map((quest) => {
-          const seeker = seekers.find(s => s.id === quest.assigned_to);
+          const seeker = seekers.find(s => s.id === quest.assignedTo);
           
           return (
             <div key={quest.id} className="border rounded-lg p-4 bg-yellow-50">
@@ -116,7 +116,7 @@ export default function QuestStatusManagement({
               
               <div className="flex gap-2">
                 <button
-                  onClick={() => handleApproveQuest(quest.id, quest.assigned_to)}
+                  onClick={() => handleApproveQuest(quest.id, quest.assignedTo)}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <CheckCircle className="w-4 h-4" />

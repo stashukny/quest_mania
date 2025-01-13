@@ -111,8 +111,8 @@ export default function App() {
       id: crypto.randomUUID(),
       title: suggestion.title,
       description: suggestion.description,
-      reward: suggestion.desiredReward,
-      assignedTo: [suggestion.suggestedBy],
+      reward: suggestion.desired_reward,
+      assigned_to: suggestion.suggested_by,
       status: 'active',
       duration: suggestion.duration
     };

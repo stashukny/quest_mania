@@ -15,9 +15,9 @@ export interface Quest {
   reward: number;
   status: string;
   duration: string;
-  assigned_to: string;
-  started_at?: string;
-  completed_at?: string;
+  assignedTo: string;
+  startedAt?: string;
+  completedAt?: string;
 }
 
 export interface QuestSuggestion {
@@ -35,8 +35,9 @@ export interface Prize {
   id: string;
   name: string;
   description: string;
-  cost: number;
-  imageUrl?: string;
+  stars_cost: number;
+  image_url?: string;
+  available: boolean
 }
 
 export interface PrizeRedemption {
@@ -45,5 +46,5 @@ export interface PrizeRedemption {
   seekerId: string;
   redeemedAt: string;
   certificateId: string;
-  starsCost: number;
+  stars_cost: number;
 }

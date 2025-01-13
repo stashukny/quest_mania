@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Sparkles, Pencil, Trash2, X, Check } from 'lucide-react';
-import { Quest, QuestSeeker, QuestDuration } from '../../types';
+import { Quest, QuestSeeker, QuestDuration } from '../../types/';
 
 interface QuestManagementProps {
   seekers: QuestSeeker[];
@@ -72,12 +72,8 @@ function EditableQuest({ quest, seekers, onSave, onCancel }: EditableQuestProps)
               Assign To
             </label>
             <select
-              multiple
               value={editedQuest.assignedTo}
-              onChange={(e) => {
-                const selected = Array.from(e.target.selectedOptions, option => option.value);
-                setEditedQuest({ ...editedQuest, assignedTo: selected });
-              }}
+              onChange={(e) => setEditedQuest({ ...editedQuest, assignedTo: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               {seekers.map((seeker) => (
@@ -125,8 +121,14 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     fetch('http://localhost:3001/api/quests')
       .then(res => res.json())
       .then(data => {
-        console.log('Quests data:', data);  // Debug log
-        setQuests(data);
+        // Map the snake_case to camelCase
+        const mappedQuests = data.map((quest: any) => ({
+          ...quest,
+          assignedTo: quest.assigned_to,
+          startedAt: quest.started_at,
+          completedAt: quest.completed_at
+        }));
+        setQuests(mappedQuests);
       })
       .catch(err => console.error('Error fetching quests:', err));
   }, [setQuests]);
@@ -134,36 +136,39 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
   const handleCreateQuest = async () => {
     if (!newQuest.title || !newQuest.description || !newQuest.assignedTo) return;
 
-    const quest: Quest = {
-      id: crypto.randomUUID(),
-      title: newQuest.title,
-      description: newQuest.description,
-      reward: newQuest.reward,
-      assigned_to: newQuest.assignedTo,
-      status: 'active',
-      duration: newQuest.duration,
-      started_at: null,
-      completed_at: null
-    };
-
-    console.log('Creating quest:', quest);
-
     try {
       const response = await fetch('http://localhost:3001/api/quests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(quest),
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          title: newQuest.title,
+          description: newQuest.description,
+          reward: newQuest.reward,
+          assigned_to: newQuest.assignedTo,
+          status: 'active',
+          duration: newQuest.duration,
+          started_at: undefined,
+          completed_at: undefined
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to create quest');
+        throw new Error(errorData.detail || JSON.stringify(errorData));
       }
 
       const savedQuest = await response.json();
-      setQuests([...quests, savedQuest]);
+      // Map the response to frontend format
+      const mappedQuest = {
+        ...savedQuest,
+        assignedTo: savedQuest.assigned_to,
+        startedAt: savedQuest.started_at,
+        completedAt: savedQuest.completed_at
+      };
+      setQuests([...quests, mappedQuest]);
       setNewQuest({
         title: '',
         description: '',
@@ -172,7 +177,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
         duration: 'none',
       });
     } catch (error) {
-      console.error('Error creating quest:', error);
+      console.error('Error creating quest:', error instanceof Error ? error.message : error);
     }
   };
 
@@ -183,14 +188,26 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedQuest),
+        body: JSON.stringify({
+          ...updatedQuest,
+          assigned_to: updatedQuest.assignedTo,
+          status: updatedQuest.status || 'active'
+        }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to update quest');
       }
 
-      setQuests(quests.map(q => q.id === updatedQuest.id ? updatedQuest : q));
+      const savedQuest = await response.json();
+      // Map the response to frontend format
+      const mappedQuest = {
+        ...savedQuest,
+        assignedTo: savedQuest.assigned_to,
+        startedAt: savedQuest.started_at,
+        completedAt: savedQuest.completed_at
+      };
+      setQuests(quests.map(q => q.id === mappedQuest.id ? mappedQuest : q));
       setEditingQuestId(null);
     } catch (error) {
       console.error('Error updating quest:', error);
@@ -349,7 +366,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
                   </div>
                 </div>
                 <div className="mt-2 text-sm text-gray-500">
-                  Assigned to: {seekers.find(s => s.id === quest.assigned_to)?.name || 'Unknown'}
+                  Assigned to: {seekers.find(s => s.id === quest.assignedTo)?.name || 'Unknown'}
                 </div>
               </div>
             )

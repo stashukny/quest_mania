@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wand2, Users, ScrollText, Clock, Lightbulb, History, Gift } from 'lucide-react';
-import { Quest, QuestSeeker, QuestSuggestion, PrizeRedemption, Prize } from '../../types';
+import { Quest, QuestSeeker, QuestSuggestion, PrizeRedemption, Prize } from '../../types/';
 import SeekerManagement from './SeekerManagement';
 import QuestManagement from './QuestManagement';
 import QuestStatusManagement from './QuestStatusManagement';
