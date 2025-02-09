@@ -1,1 +1,1 @@
-uvicorn server.main:app --reload --port 3001
+web: uvicorn server.main:app --reload --port 3001
