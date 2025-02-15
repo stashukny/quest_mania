@@ -27,7 +27,7 @@ export default function HistoryView({ quests, seekers }: HistoryViewProps) {
 
   useEffect(() => {
     // Fetch redemptions
-    fetch('http://localhost:3001/api/prize-redemptions')
+    fetch('/api/prize-redemptions')
       .then(res => res.json())
       .then(data => setRedemptions(data))
       .catch(err => console.error('Error fetching redemptions:', err));

@@ -33,7 +33,7 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
     };
 
     try {
-        const response = await fetch('http://localhost:3001/api/quest-suggestions', {
+        const response = await fetch('/api/quest-suggestions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

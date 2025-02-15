@@ -27,10 +27,10 @@ export default function App() {
       try {
         // Fetch all data in parallel
         const [questsResponse, seekersResponse, suggestionsResponse, prizesResponse] = await Promise.all([
-          fetch('http://localhost:3001/api/quests'),
-          fetch('http://localhost:3001/api/seekers'),
-          fetch('http://localhost:3001/api/quest-suggestions'),
-          fetch('http://localhost:3001/api/prizes')
+          fetch('/api/quests'),
+          fetch('/api/seekers'),
+          fetch('/api/quest-suggestions'),
+          fetch('/api/prizes')
         ]);
 
         if (!questsResponse.ok) throw new Error('Failed to fetch quests');
@@ -144,7 +144,7 @@ export default function App() {
       });
 
       // Fetch the updated seeker data to ensure consistency
-      const response = await fetch(`http://localhost:3001/api/seekers/${currentSeeker.id}`);
+      const response = await fetch(`/api/seekers/${currentSeeker.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch updated seeker data');
       }

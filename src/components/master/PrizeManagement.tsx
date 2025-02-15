@@ -105,7 +105,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
   useEffect(() => {
     const fetchPrizes = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/prizes');
+        const response = await fetch('/api/prizes');
         if (!response.ok) throw new Error('Failed to fetch prizes');
         const data = await response.json();
         setPrizes(data);
@@ -118,7 +118,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
 
   const handleSavePrize = async (prize: Prize) => {
     try {
-      const response = await fetch('http://localhost:3001/api/prizes', {
+      const response = await fetch('/api/prizes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
 
   const handleEditPrize = async (updatedPrize: Prize) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/prizes/${updatedPrize.id}`, {
+      const response = await fetch(`/api/prizes/${updatedPrize.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export default function PrizeManagement({ prizes, setPrizes, redemptions }: Priz
 
     if (confirm('Are you sure you want to remove this prize?')) {
       try {
-        const response = await fetch(`http://localhost:3001/api/prizes/${prizeId}`, {
+        const response = await fetch(`/api/prizes/${prizeId}`, {
           method: 'DELETE',
         });
 

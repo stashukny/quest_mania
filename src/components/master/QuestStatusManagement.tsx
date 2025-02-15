@@ -20,7 +20,7 @@ export default function QuestStatusManagement({
   const currentSeekerId = seekers[0]?.id;
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/quests`)
+    fetch(`/api/quests`)
       .then(res => res.json())
       .then(data => {
         console.log('All quests:', data);
@@ -35,7 +35,7 @@ export default function QuestStatusManagement({
 
   const handleApproveQuest = async (questId: string, seekerId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quests/${questId}/approve`, {
+      const response = await fetch(`/api/quests/${questId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export default function QuestStatusManagement({
 
   const handleRejectQuest = async (questId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quests/${questId}/reject`, {
+      const response = await fetch(`/api/quests/${questId}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

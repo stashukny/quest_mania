@@ -118,7 +118,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
   // Fetch quests on component mount
   useEffect(() => {
-    fetch('http://localhost:3001/api/quests')
+    fetch('/api/quests')
       .then(res => res.json())
       .then(data => {
         // Map the snake_case to camelCase
@@ -137,7 +137,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
     if (!newQuest.title || !newQuest.description || !newQuest.assigned_to) return;
 
     try {
-      const response = await fetch('http://localhost:3001/api/quests', {
+      const response = await fetch('/api/quests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,7 +183,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
   const handleEditQuest = async (updatedQuest: Quest) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quests/${updatedQuest.id}`, {
+      const response = await fetch(`/api/quests/${updatedQuest.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -225,7 +225,7 @@ export default function QuestManagement({ seekers, quests, setQuests }: QuestMan
 
     if (confirm('Are you sure you want to delete this quest?')) {
       try {
-        const response = await fetch(`http://localhost:3001/api/quests/${questId}`, {
+        const response = await fetch(`/api/quests/${questId}`, {
           method: 'DELETE',
         });
 

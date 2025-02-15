@@ -35,7 +35,7 @@ export default function SeekerDashboard({
   useEffect(() => {
     const fetchRedemptions = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/seekers/${seeker.id}/redemptions`);
+        const response = await fetch(`/api/seekers/${seeker.id}/redemptions`);
         if (!response.ok) {
           throw new Error('Failed to fetch redemptions');
         }

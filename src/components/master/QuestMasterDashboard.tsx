@@ -89,7 +89,7 @@ export default function QuestMasterDashboard({
 
   const handleApproveSuggestion = async (suggestionId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quest-suggestions/${suggestionId}/approve`, {
+      const response = await fetch(`/api/quest-suggestions/${suggestionId}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ export default function QuestMasterDashboard({
 
   const handleRejectSuggestion = async (suggestionId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/quest-suggestions/${suggestionId}/reject`, {
+      const response = await fetch(`/api/quest-suggestions/${suggestionId}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
