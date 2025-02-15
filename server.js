@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import sqlite3 from 'sqlite3';
+// import sqlite3 from 'sqlite3';
 
 const app = express();
 const port = 3001;
@@ -9,29 +9,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('dist'));  // Serve the Vite build output
 
-// Initialize SQLite database
-const db = new sqlite3.Database('database.sqlite', (err) => {
-  if (err) {
-    console.error('Error opening database:', err);
-  } else {
-    console.log('Database connected');
-    // Create tables if they don't exist
-    db.run(`
-      CREATE TABLE IF NOT EXISTS seekers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT
-      )
-    `);
-    db.run(`
-      CREATE TABLE IF NOT EXISTS quests (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
-        description TEXT
-      )
-    `);
-    // Add other tables as needed
-  }
-});
 
 // Get all data
 app.get('/api/state', (req, res) => {
