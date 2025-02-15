@@ -1,76 +1,19 @@
 import express from 'express';
-import cors from 'cors';
-// import sqlite3 from 'sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3001;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static('dist'));  // Serve the Vite build output
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'dist')));
 
+// Your existing routes here...
 
-// Get all data
-app.get('/api/state', (req, res) => {
-  const state = {};
-  
-  // Get all seekers
-  db.all('SELECT * FROM seekers', [], (err, seekers) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    state.seekers = seekers;
-    
-    // Get all quests
-    db.all('SELECT * FROM quests', [], (err, quests) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      state.quests = quests;
-      
-      // Add other data as needed
-      state.suggestions = [];
-      state.redemptions = [];
-      state.prizes = [];
-      
-      res.json(state);
-    });
-  });
-});
-
-// Update state
-app.post('/api/state', (req, res) => {
-  const newState = req.body;
-  
-  // Clear and insert new seekers
-  db.run('DELETE FROM seekers', [], (err) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    
-    const stmt = db.prepare('INSERT INTO seekers (name) VALUES (?)');
-    newState.seekers.forEach(seeker => {
-      stmt.run(seeker);
-    });
-    stmt.finalize();
-    
-    // Handle other tables similarly
-    
-    res.json({ success: true });
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
-
-// Clean up on exit
-process.on('SIGINT', () => {
-  db.close((err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    console.log('Database connection closed');
-    process.exit(0);
-  });
+// The "catchall" handler: for any request that doesn't
+// match one above, send back the index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
