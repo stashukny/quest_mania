@@ -4,11 +4,10 @@ import SeekerLogin from './components/seeker/SeekerLogin';
 import SeekerDashboard from './components/seeker/SeekerDashboard';
 import MasterLogin from './components/master/MasterLogin';
 import { QuestSeeker, Quest, QuestSuggestion, PrizeRedemption } from './types/';
-import { generateCertificateId } from './utils/certificates';
 import { DEFAULT_PRIZES } from './constants/prizes';
 import { api } from './api';
 
-const MASTER_PIN = '1234';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function App() {
   const [seekers, setSeekers] = useState<QuestSeeker[]>([]);
@@ -27,10 +26,10 @@ export default function App() {
       try {
         // Fetch all data in parallel
         const [questsResponse, seekersResponse, suggestionsResponse, prizesResponse] = await Promise.all([
-          fetch('/api/quests'),
-          fetch('/api/seekers'),
-          fetch('/api/quest-suggestions'),
-          fetch('/api/prizes')
+          fetch(`${API_URL}/api/quests`),
+          fetch(`${API_URL}/api/seekers`),
+          fetch(`${API_URL}/api/quest-suggestions`),
+          fetch(`${API_URL}/api/prizes`)
         ]);
 
         if (!questsResponse.ok) throw new Error('Failed to fetch quests');
@@ -144,7 +143,7 @@ export default function App() {
       });
 
       // Fetch the updated seeker data to ensure consistency
-      const response = await fetch(`/api/seekers/${currentSeeker.id}`);
+      const response = await fetch(`${API_URL}/api/seekers/${currentSeeker.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch updated seeker data');
       }

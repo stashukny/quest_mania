@@ -1,6 +1,6 @@
-import React from 'react';
 import { Sparkles, CheckCircle, PlayCircle, Clock, Trophy } from 'lucide-react';
 import { Quest } from '../../types/';
+import { API_URL } from '../../config';
 
 interface QuestListProps {
   quests: Quest[];
@@ -47,6 +47,38 @@ function canCompleteQuest(quest: Quest): boolean {
 export default function QuestList({ quests, onQuestComplete, onQuestStart }: QuestListProps) {
   console.log('QuestList received quests:', quests);
   
+  const handleQuestStart = async (questId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/quests/${questId}/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to start quest');
+      onQuestStart(questId);
+    } catch (error) {
+      console.error('Error starting quest:', error);
+    }
+  };
+
+  const handleQuestComplete = async (questId: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/quests/${questId}/complete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to complete quest');
+      onQuestComplete(questId);
+    } catch (error) {
+      console.error('Error completing quest:', error);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-xl p-6">
       <div className="flex items-center gap-2 mb-6">

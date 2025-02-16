@@ -4,6 +4,7 @@ import { QuestSeeker, Quest, PrizeRedemption } from '../../types/';
 import QuestList from './QuestList';
 import QuestSuggestionForm from './QuestSuggestion';
 import PrizeStore from './PrizeStore';
+import { API_URL } from '../../config';
 
 interface PrizeRedemptionWithDetails {
   id: string;
@@ -35,7 +36,7 @@ export default function SeekerDashboard({
   useEffect(() => {
     const fetchRedemptions = async () => {
       try {
-        const response = await fetch(`/api/seekers/${seeker.id}/redemptions`);
+        const response = await fetch(`${API_URL}/api/prize-redemptions`);
         if (!response.ok) {
           throw new Error('Failed to fetch redemptions');
         }
@@ -47,7 +48,7 @@ export default function SeekerDashboard({
     };
 
     fetchRedemptions();
-  }, [seeker.id, seeker.stars]);
+  }, []);
 
   console.log('All quests:', quests);
   console.log('Seeker ID:', seeker.id);

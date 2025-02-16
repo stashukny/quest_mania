@@ -6,11 +6,11 @@ interface QuestCompletion {
     completed_at: string;
 } 
 
-interface Prize {
+export interface Prize {
   id: string;
   name: string;
   description: string;
-  cost: number;
-  imageUrl?: string;
+  stars_cost: number;
+  image_url?: string;
   available: boolean;
 } 

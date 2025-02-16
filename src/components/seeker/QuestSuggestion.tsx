@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Send } from 'lucide-react';
 import type { QuestSuggestion as QuestSuggestionType, QuestDuration } from '../../types/';
+import { API_URL } from '../../config';
 
 interface QuestSuggestionProps {
   seekerId: string;
@@ -33,7 +34,7 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
     };
 
     try {
-        const response = await fetch('/api/quest-suggestions', {
+        const response = await fetch(`${API_URL}/api/quest-suggestions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { History, Star, Gift } from 'lucide-react';
 import { Quest, QuestSeeker, PrizeRedemption } from '../../types/';
+import { API_URL } from '../../config';
 
 interface HistoryViewProps {
   quests: Quest[];
@@ -27,7 +28,7 @@ export default function HistoryView({ quests, seekers }: HistoryViewProps) {
 
   useEffect(() => {
     // Fetch redemptions
-    fetch('/api/prize-redemptions')
+    fetch(`${API_URL}/api/prize-redemptions`)
       .then(res => res.json())
       .then(data => setRedemptions(data))
       .catch(err => console.error('Error fetching redemptions:', err));

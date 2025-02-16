@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Sparkles, Gift } from 'lucide-react';
 import { QuestSeeker, Prize } from '../../types/';
 import RedemptionCertificate from './RedemptionCertificate';
+import { API_URL } from '../../config';
 
 interface PrizeStoreProps {
   seeker: QuestSeeker;
@@ -31,7 +32,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
   }, [seeker.stars]);
 
   useEffect(() => {
-    fetch('/api/prizes')
+    fetch(`${API_URL}/api/prizes`)
       .then(res => res.json())
       .then(data => setPrizes(data))
       .catch(err => console.error('Error fetching prizes:', err));
@@ -51,7 +52,7 @@ export default function PrizeStore({ seeker, onRedeemPrize }: PrizeStoreProps) {
     };
 
     try {
-      const response = await fetch('/api/prize-redemptions', {
+      const response = await fetch(`${API_URL}/api/prize-redemptions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
