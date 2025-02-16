@@ -70,13 +70,18 @@ export const api = {
         return response.json();
     },
 
-    updateQuestStatus: async (questId: string, status: string) => {
+    updateQuestStatus: async (questId: string, update: { 
+        status: string; 
+        started_at?: string;
+        completed_at?: string;
+        assigned_to?: string;
+    }) => {
         const response = await fetch(`${BASE_URL}/quests/${questId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify(update),
         });
         if (!response.ok) throw new Error('Failed to update quest status');
         return response.json();

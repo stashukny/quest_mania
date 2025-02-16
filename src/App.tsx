@@ -76,23 +76,38 @@ export default function App() {
     if (!currentSeeker) return;
     
     try {
-      const updated = await api.updateQuestStatus(questId, 'pending');
+      const updated = await api.updateQuestStatus(questId, {
+        status: 'pending',
+        completed_at: new Date().toISOString()
+      });
       setQuests(quests.map(quest => 
-        quest.id === questId ? { ...quest, status: 'pending' } : quest
+        quest.id === questId ? { ...quest, ...updated } : quest
       ));
     } catch (error) {
       console.error('Error completing quest:', error);
     }
   };
 
-  const handleQuestStart = (questId: string) => {
-    setQuests(quests.map(quest => 
-      quest.id === questId ? { 
-        ...quest, 
+  const handleQuestStart = async (questId: string) => {
+    if (!currentSeeker) return;
+    
+    try {
+      const now = new Date().toISOString();
+      const updated = await api.updateQuestStatus(questId, {
         status: 'in_progress',
-        started_at: new Date().toISOString()
-      } : quest
-    ));
+        started_at: now,
+        assigned_to: currentSeeker.id
+      });
+      
+      setQuests(quests.map(quest => 
+        quest.id === questId ? { 
+          ...quest, 
+          ...updated
+        } : quest
+      ));
+    } catch (error) {
+      console.error('Error starting quest:', error);
+    }
   };
 
   const handleSuggestQuest = (suggestion: Omit<QuestSuggestion, 'id' | 'status'>) => {

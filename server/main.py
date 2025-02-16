@@ -87,12 +87,14 @@ class Prize(BaseModel):
     available: bool = True
 
 class QuestUpdate(BaseModel):
-    title: str
-    description: str
-    reward: int
-    status: str
-    duration: str
-    assigned_to: str  # Now a single string instead of JSON array
+    title: Optional[str] = None
+    description: Optional[str] = None
+    reward: Optional[int] = None
+    status: Optional[str] = None
+    duration: Optional[str] = None
+    assigned_to: Optional[str] = None
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
 
 class SeekerUpdate(BaseModel):
     name: str
@@ -244,28 +246,73 @@ async def start_quest(quest_id: str, seekerId: str = None):
             raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/api/quests/{quest_id}")
-async def update_quest(quest_id: str, quest: QuestUpdate):
+async def update_quest(quest_id: str, quest_update: QuestUpdate):
+    print(f"Updating quest {quest_id} with data: {quest_update.dict(exclude_unset=True)}")  # Debug log
     async with app.state.pool.acquire() as conn:
         try:
-            await conn.execute('''
+            # First check if the quest exists
+            existing_quest = await conn.fetchrow('SELECT * FROM quests WHERE id = $1', quest_id)
+            if not existing_quest:
+                print(f"Quest {quest_id} not found")
+                raise HTTPException(status_code=404, detail="Quest not found")
+            print(f"Found existing quest: {dict(existing_quest)}")  # Debug log
+
+            # Build the SET clause dynamically based on provided fields
+            update_fields = []
+            params = []
+            param_index = 1
+
+            update_data = quest_update.dict(exclude_unset=True)
+            print(f"Update data after dict conversion: {update_data}")  # Debug log
+
+            for field, value in update_data.items():
+                if value is not None:
+                    # Convert ISO datetime strings to datetime objects
+                    if field in ['started_at', 'completed_at'] and value:
+                        try:
+                            value = datetime.fromisoformat(value.replace('Z', '+00:00'))
+                        except Exception as e:
+                            print(f"Error parsing datetime {value}: {str(e)}")
+                            raise HTTPException(status_code=400, detail=f"Invalid datetime format for {field}")
+                    
+                    update_fields.append(f"{field} = ${param_index}")
+                    params.append(value)
+                    param_index += 1
+
+            if not update_fields:
+                print("No fields to update")  # Debug log
+                raise HTTPException(status_code=400, detail="No fields to update")
+
+            query = f"""
                 UPDATE quests 
-                SET title = $1, description = $2, reward = $3, 
-                    status = $4, duration = $5, assigned_to = $6 
-                WHERE id = $7
-            ''', quest.title, quest.description, quest.reward,
-                quest.status, quest.duration, quest.assigned_to, quest_id)
+                SET {', '.join(update_fields)}
+                WHERE id = ${param_index}
+                RETURNING *
+            """
+            params.append(quest_id)
             
-            return {
-                "id": quest_id,
-                "title": quest.title,
-                "description": quest.description,
-                "reward": quest.reward,
-                "status": quest.status,
-                "duration": quest.duration,
-                "assigned_to": quest.assigned_to
-            }
+            print(f"Executing query: {query}")  # Debug log
+            print(f"With parameters: {params}")  # Debug log
+
+            try:
+                updated_quest = await conn.fetchrow(query, *params)
+                print(f"Query executed successfully")  # Debug log
+            except Exception as db_error:
+                print(f"Database error: {str(db_error)}")  # Debug log
+                raise HTTPException(status_code=500, detail=f"Database error: {str(db_error)}")
+            
+            if not updated_quest:
+                print(f"No quest was updated")  # Debug log
+                raise HTTPException(status_code=404, detail="Quest not found")
+            
+            result = dict(updated_quest)
+            print(f"Updated quest: {result}")  # Debug log
+            return result
         except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e)) 
+            print(f"Error updating quest: {str(e)}")
+            print(f"Error type: {type(e)}")  # Debug log
+            print(f"Error details: {str(e)}")  # Debug log
+            raise HTTPException(status_code=500, detail=str(e))
 
 # Quest suggestion endpoints
 @app.get("/api/quest-suggestions")
