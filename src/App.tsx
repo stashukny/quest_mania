@@ -8,8 +8,6 @@ import { generateCertificateId } from './utils/certificates';
 import { DEFAULT_PRIZES } from './constants/prizes';
 import { api } from './api';
 
-const MASTER_PIN = '1234';
-
 export default function App() {
   const [seekers, setSeekers] = useState<QuestSeeker[]>([]);
   const [quests, setQuests] = useState<Quest[]>([]);
