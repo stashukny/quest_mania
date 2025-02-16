@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, Star, Gift, LogOut } from 'lucide-react';
-import { QuestSeeker, Quest, PrizeRedemption } from '../../types/';
+import { QuestSeeker, Quest, PrizeRedemption, QuestSuggestion } from '../../types/';
 import QuestList from './QuestList';
 import QuestSuggestionForm from './QuestSuggestion';
 import PrizeStore from './PrizeStore';
@@ -20,6 +20,7 @@ interface SeekerDashboardProps {
   onQuestStart: (questId: string) => void;
   onRedeemPrize: (prizeId: string, starsCost: number) => void;
   onLogout: () => void;
+  onNewSuggestion: (suggestion: QuestSuggestion) => void;
 }
 
 export default function SeekerDashboard({ 
@@ -28,7 +29,8 @@ export default function SeekerDashboard({
   onQuestComplete,
   onQuestStart,
   onRedeemPrize,
-  onLogout 
+  onLogout,
+  onNewSuggestion
 }: SeekerDashboardProps) {
   const [redemptions, setRedemptions] = useState<PrizeRedemptionWithDetails[]>([]);
 
@@ -100,7 +102,10 @@ export default function SeekerDashboard({
         />
 
         {/* Quest Suggestion Form */}
-        <QuestSuggestionForm seekerId={seeker.id} />
+        <QuestSuggestionForm 
+          seekerId={seeker.id} 
+          onSuggestionSubmit={onNewSuggestion}
+        />
 
         {/* Prize Store */}
         <PrizeStore seeker={seeker} onRedeemPrize={onRedeemPrize} />

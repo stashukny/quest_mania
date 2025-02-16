@@ -4,9 +4,10 @@ import type { QuestSuggestion as QuestSuggestionType, QuestDuration } from '../.
 
 interface QuestSuggestionProps {
   seekerId: string;
+  onSuggestionSubmit?: (suggestion: QuestSuggestionType) => void;
 }
 
-export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) {
+export default function QuestSuggestionForm({ seekerId, onSuggestionSubmit }: QuestSuggestionProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -45,6 +46,11 @@ export default function QuestSuggestionForm({ seekerId }: QuestSuggestionProps) 
             const errorData = await response.json();
             throw new Error(errorData.detail || 'Failed to submit quest suggestion');
         }
+
+        const savedSuggestion = await response.json();
+        
+        // Call the callback with the new suggestion
+        onSuggestionSubmit?.(savedSuggestion);
 
         setFormData({
             title: '',

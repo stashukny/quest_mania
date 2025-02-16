@@ -179,6 +179,10 @@ export default function App() {
     }
   };
 
+  const handleNewSuggestion = (suggestion: QuestSuggestion) => {
+    setSuggestions(prev => [...prev, suggestion]);
+  };
+
   // const handleMasterLogin = (pin: string) => {
   //   if (pin === MASTER_PIN) {
   //     fetchInitialData();  // Fetch all data when master logs in
@@ -244,6 +248,7 @@ export default function App() {
       onQuestComplete={handleQuestComplete}
       onQuestStart={handleQuestStart}
       onRedeemPrize={handlePrizeRedeem}
+      onNewSuggestion={handleNewSuggestion}
     />
   );
 }
