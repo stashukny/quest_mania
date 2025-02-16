@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Wand2, Key } from 'lucide-react';
+import { config } from '../../config';
 
 interface MasterLoginProps {
   onLogin: () => void;
   onBack: () => void;
 }
-
-const MASTER_PIN = '0606';
 
 export default function MasterLogin({ onLogin, onBack }: MasterLoginProps) {
   const [pin, setPin] = useState('');
@@ -14,7 +13,7 @@ export default function MasterLogin({ onLogin, onBack }: MasterLoginProps) {
 
   const handleLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (pin === MASTER_PIN) {
+    if (pin === config.masterPin) {
       onLogin();
     } else {
       setError('Invalid PIN. Please try again.');
