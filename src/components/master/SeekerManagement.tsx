@@ -16,15 +16,15 @@ interface EditableSeekerProps {
 
 function EditableSeeker({ seeker, onSave, onCancel }: EditableSeekerProps) {
   const [editedSeeker, setEditedSeeker] = useState({
-    name: seeker.name,
-    avatarUrl: seeker.avatarUrl,
-    pin: seeker.pin,
+    name: seeker.name || '',
+    avatarUrl: seeker.avatarUrl || '',
+    pin: seeker.pin || '',
   });
 
   return (
     <div className="flex items-center gap-4 p-4 border rounded-lg bg-purple-50">
       <img
-        src={editedSeeker.avatarUrl}
+        src={editedSeeker.avatarUrl || 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=200'}
         alt={editedSeeker.name}
         className="w-16 h-16 rounded-full object-cover"
       />

@@ -12,7 +12,8 @@ export default function MasterLogin({ onLogin, onBack }: MasterLoginProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (pin === MASTER_PIN) {
       onLogin();
     } else {
@@ -29,7 +30,7 @@ export default function MasterLogin({ onLogin, onBack }: MasterLoginProps) {
           <p className="text-gray-600 text-center mt-2">Enter your PIN to access the Quest Master dashboard</p>
         </div>
 
-        <div className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div className="relative">
             <Key className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -50,7 +51,7 @@ export default function MasterLogin({ onLogin, onBack }: MasterLoginProps) {
           )}
 
           <button
-            onClick={handleLogin}
+            type="submit"
             disabled={pin.length !== 4}
             className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -58,12 +59,13 @@ export default function MasterLogin({ onLogin, onBack }: MasterLoginProps) {
           </button>
 
           <button
+            type="button"
             onClick={onBack}
             className="w-full px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Back to Seeker Login
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

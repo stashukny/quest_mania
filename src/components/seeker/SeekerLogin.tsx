@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Wand2 } from 'lucide-react';
-import { QuestSeeker } from '../../types';
+import { QuestSeeker } from '../../types/index';
 
 interface SeekerLoginProps {
   seekers: QuestSeeker[];
@@ -12,7 +12,8 @@ export default function SeekerLogin({ seekers, onLogin, onMasterLogin }: SeekerL
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const seeker = seekers.find(s => s.pin === pin);
     if (seeker) {
       onLogin(seeker);
@@ -30,7 +31,7 @@ export default function SeekerLogin({ seekers, onLogin, onMasterLogin }: SeekerL
           <p className="text-gray-600 text-center mt-2">Enter your PIN to begin your quest!</p>
         </div>
 
-        <div className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="text"
             maxLength={4}
@@ -48,7 +49,7 @@ export default function SeekerLogin({ seekers, onLogin, onMasterLogin }: SeekerL
           )}
 
           <button
-            onClick={handleLogin}
+            type="submit"
             disabled={pin.length !== 4}
             className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -56,12 +57,13 @@ export default function SeekerLogin({ seekers, onLogin, onMasterLogin }: SeekerL
           </button>
 
           <button
+            type="button"
             onClick={onMasterLogin}
             className="w-full px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             Quest Master Login
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

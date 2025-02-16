@@ -99,7 +99,8 @@ class QuestUpdate(BaseModel):
 class SeekerUpdate(BaseModel):
     name: str
     pin: str
-    avatar_url: Optional[str]
+    avatarUrl: Optional[str] = None  # Frontend property
+    avatar_url: Optional[str] = None  # Database property
     stars: int
 
 class QuestCompleteRequest(BaseModel):
@@ -121,7 +122,15 @@ class PrizeRedemption(BaseModel):
 async def get_seekers():
     async with app.state.pool.acquire() as conn:
         rows = await conn.fetch('SELECT * FROM seekers')
-        return [dict(row) for row in rows]
+        # Convert rows to use frontend property name
+        return [{
+            **dict(row),
+            'avatarUrl': row['avatar_url'],
+            'id': row['id'],
+            'name': row['name'],
+            'pin': row['pin'],
+            'stars': row['stars']
+        } for row in rows]
 
 @app.post("/api/seekers")
 async def create_seeker(seeker: Seeker):
@@ -557,20 +566,25 @@ async def delete_seeker(seeker_id: str):
 async def update_seeker(seeker_id: str, seeker: SeekerUpdate):
     async with app.state.pool.acquire() as conn:
         try:
+            # Use avatarUrl if provided, otherwise use avatar_url
+            avatar_url = seeker.avatarUrl or seeker.avatar_url
+            
             await conn.execute('''
                 UPDATE seekers 
                 SET name = $1, pin = $2, avatar_url = $3, stars = $4 
                 WHERE id = $5
-            ''', seeker.name, seeker.pin, seeker.avatar_url, seeker.stars, seeker_id)
+            ''', seeker.name, seeker.pin, avatar_url, seeker.stars, seeker_id)
             
+            # Return response using frontend property name
             return {
                 "id": seeker_id,
                 "name": seeker.name,
                 "pin": seeker.pin,
-                "avatar_url": seeker.avatar_url,
+                "avatarUrl": avatar_url,
                 "stars": seeker.stars
             }
         except Exception as e:
+            print(f"Error updating seeker: {str(e)}")
             raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/api/quests/{quest_id}")
@@ -612,9 +626,11 @@ async def get_seeker(seeker_id: str):
                     )
             ''', seeker_id)
 
+            # Convert to use frontend property name
             return {
                 **dict(seeker),
-                "stars": available_stars or 0  # Ensure we return 0 instead of None
+                'avatarUrl': seeker['avatar_url'],
+                'stars': available_stars or 0  # Ensure we return 0 instead of None
             }
         except Exception as e:
             print(f"Error fetching seeker: {str(e)}")
