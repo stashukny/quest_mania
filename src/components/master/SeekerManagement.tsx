@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, X, Check } from 'lucide-react';
-import { QuestSeeker } from '../../types';
+import { QuestSeeker } from '../../types/';
+import { api } from '../../api';
 
 interface SeekerManagementProps {
   seekers: QuestSeeker[];
@@ -75,10 +76,16 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
   const [editingSeekerIds, setEditingSeekerIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    fetch('/api/seekers')
-      .then(res => res.json())
-      .then(data => setSeekers(data))
-      .catch(err => console.error('Error fetching seekers:', err));
+    const fetchSeekers = async () => {
+      try {
+        const data = await api.getSeekers();
+        setSeekers(data);
+      } catch (err) {
+        console.error('Error fetching seekers:', err);
+      }
+    };
+
+    fetchSeekers();
   }, [setSeekers]);
 
   const generatePin = () => {
@@ -98,19 +105,7 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
     };
 
     try {
-      const response = await fetch('/api/seekers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(seeker),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add seeker');
-      }
-
-      const savedSeeker = await response.json();
+      const savedSeeker = await api.createSeeker(seeker);
       setSeekers([...seekers, savedSeeker]);
       setNewSeeker({ name: '', avatarUrl: '' });
     } catch (error) {
@@ -121,14 +116,7 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
   const handleRemoveSeeker = async (seekerId: string) => {
     if (confirm('Are you sure you want to remove this quest seeker? This action cannot be undone.')) {
       try {
-        const response = await fetch(`/api/seekers/${seekerId}`, {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete seeker');
-        }
-
+        await api.deleteSeeker(seekerId);
         setSeekers(seekers.filter(s => s.id !== seekerId));
       } catch (error) {
         console.error('Error removing seeker:', error);
@@ -142,20 +130,9 @@ export default function SeekerManagement({ seekers, setSeekers }: SeekerManageme
 
   const handleSaveSeeker = async (updatedSeeker: QuestSeeker) => {
     try {
-      const response = await fetch(`/api/seekers/${updatedSeeker.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedSeeker),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update seeker');
-      }
-
-      setSeekers(seekers.map(s => s.id === updatedSeeker.id ? updatedSeeker : s));
-      setEditingSeekerIds(new Set([...editingSeekerIds].filter(id => id !== updatedSeeker.id)));
+      const savedSeeker = await api.updateSeeker(updatedSeeker);
+      setSeekers(seekers.map(s => s.id === savedSeeker.id ? savedSeeker : s));
+      setEditingSeekerIds(new Set([...editingSeekerIds].filter(id => id !== savedSeeker.id)));
     } catch (error) {
       console.error('Error updating seeker:', error);
     }

@@ -1,28 +1,54 @@
-import { Quest } from "../types/";
+import { Quest, QuestSeeker } from "../types/";
 
-const API_BASE_URL = '/api';
+// Use relative path for API requests - will be handled by Express server in both dev and prod
+export const BASE_URL = '/api';
 
 export const api = {
     // Seekers
     getSeekers: async () => {
-        const response = await fetch(`${API_BASE_URL}/seekers`);
+        const response = await fetch(`${BASE_URL}/seekers`);
+        if (!response.ok) throw new Error('Failed to fetch seekers');
         return response.json();
     },
     
-    createSeeker: async (seeker: { id: string; name: string }) => {
-        const response = await fetch(`${API_BASE_URL}/seekers`, {
+    createSeeker: async (seeker: QuestSeeker) => {
+        const response = await fetch(`${BASE_URL}/seekers`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(seeker),
         });
+        if (!response.ok) throw new Error('Failed to create seeker');
+        return response.json();
+    },
+
+    updateSeeker: async (seeker: QuestSeeker) => {
+        const response = await fetch(`${BASE_URL}/seekers/${seeker.id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(seeker),
+        });
+        if (!response.ok) throw new Error('Failed to update seeker');
+        return response.json();
+    },
+
+    deleteSeeker: async (seekerId: string) => {
+        const response = await fetch(`${BASE_URL}/seekers/${seekerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) throw new Error('Failed to delete seeker');
         return response.json();
     },
 
     // Quests
     getQuests: async () => {
-        const response = await fetch(`${API_BASE_URL}/quests`);
+        const response = await fetch(`${BASE_URL}/quests`);
         const data = await response.json();
         // Map snake_case to camelCase
         return data.map((quest: any) => ({
@@ -34,7 +60,7 @@ export const api = {
     },
 
     createQuest: async (quest: Quest) => {
-        const response = await fetch(`${API_BASE_URL}/quests`, {
+        const response = await fetch(`${BASE_URL}/quests`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -45,22 +71,15 @@ export const api = {
     },
 
     updateQuestStatus: async (questId: string, status: string) => {
-        const response = await fetch(`${API_BASE_URL}/quests/${questId}/complete`, {
-            method: 'POST',
+        const response = await fetch(`${BASE_URL}/quests/${questId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
-                seeker_id: localStorage.getItem('currentSeekerId')
-            })
+            body: JSON.stringify({ status }),
         });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Failed to complete quest');
-        }
-
-        return await response.json();
+        if (!response.ok) throw new Error('Failed to update quest status');
+        return response.json();
     },
 
     submitQuestSuggestion: async (suggestion: {
@@ -70,7 +89,7 @@ export const api = {
         desired_reward: number;
         duration: string;
     }) => {
-        const response = await fetch(`${API_BASE_URL}/quest-suggestions`, {
+        const response = await fetch(`${BASE_URL}/quest-suggestions`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

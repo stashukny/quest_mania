@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
-import { Prize } from '../../types';
+import { Prize } from '../../types/';
 
 interface PrizeCardProps {
   prize: {
